@@ -14,4 +14,4 @@ setup.py
 *.ini
 .github/
 docs/
-test/
+test/*
