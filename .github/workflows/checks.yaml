@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
 
-  test-railway-orchestrator:
+  test-ai4realnet-orchestrator-railway:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -30,5 +30,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: flatland-benchmarks/evaluation/ai4realnet_orchestrators
-      - name: find
-        run: find .
+      - name: Run tests
+        working-directory: flatland-benchmarks/evaluation/ai4realnet_orchestrators
+        run: |
+          python -m pip install -r requirements.txt -r requirements-dev.txt
+          export OAUTHLIB_INSECURE_TRANSPORT=1
+          pytest -s test_containers_railway.py
