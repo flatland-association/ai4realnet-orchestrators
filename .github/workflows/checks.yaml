@@ -1,0 +1,27 @@
+name: Checks
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [ "main" ]
+  # Scheduled workflows will only run on the default branch.
+  schedule:
+    - cron: '30 5 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  test-railway-orchestrator:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.13" ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout flatland-benchmarks
+        run: git clone https://github.com/flatland-association/flatland-benchmarks.git
