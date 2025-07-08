@@ -29,8 +29,6 @@ jobs:
           ref: 232-extract-blueprint
       - uses: actions/checkout@v4
         with:
-          path: flatland-benchmarks/evaluation
-          sparse-checkout: |
-            ai4realnet_orchestrators
+          path: flatland-benchmarks/evaluation/ai4realnet_orchestrators
       - name: find
         run: find .
