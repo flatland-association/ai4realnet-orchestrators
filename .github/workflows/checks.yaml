@@ -27,11 +27,12 @@ jobs:
           repository: flatland-association/flatland-benchmarks
           # TODO remove
           ref: 232-extract-blueprint
+          path: flatland-benchmarks
       - uses: actions/checkout@v4
         with:
           path: flatland-benchmarks/evaluation/ai4realnet_orchestrators
       - name: Install client lib
-        working-directory: flatland-benchmarks/fab_clientlib
+        working-directory: flatland-benchmarks/fab-clientlib/
         run: |
           python -m pip install .
       - name: Run tests
