@@ -75,7 +75,7 @@ In your domain-specific infrastructure:
 ```shell
 export BENCHMARK_ID=<get it from Flatland>
 export BACKEND_URL=rpc://
-export BROKER_URL=amqps://<USER - get it from Flatland>:<PW - get it from Flatland>@rabbitmq.flatland.cloud:5671//
+export BROKER_URL=amqps://<USER - get it from Flatland>:<PW - get it from Flatland>@rabbitmq-int.flatland.cloud:5671//
 export CLIENT_ID=<get it from Flatland>
 export CLIENT_SECRET=<get it from Flatland>
 export FAB_API_URL=https://ai4realnet-int.flatland.cloud:8000
