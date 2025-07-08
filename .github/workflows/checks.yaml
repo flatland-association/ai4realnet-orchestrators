@@ -23,5 +23,14 @@ jobs:
         python-version: [ "3.13" ]
     steps:
       - uses: actions/checkout@v4
-      - name: Checkout flatland-benchmarks
-        run: git clone https://github.com/flatland-association/flatland-benchmarks.git
+        with:
+          repository: flatland-association/flatland-benchmarks
+          # TODO remove
+          ref: 232-extract-blueprint
+      - uses: actions/checkout@v4
+        with:
+          path: flatland-benchmarks/evaluation
+          sparse-checkout: |
+            ai4realnet_orchestrators
+      - name: find
+        run: find .
