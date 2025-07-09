@@ -17,16 +17,16 @@ It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientli
 ## Experiment Workflows
 
 * **offline-loop**: manually upload your test results (JSON) via
-    * FAB UI
-    * FAB REST API using Python FAB Client Lib
+  * FAB UI
+  * FAB REST API using Python FAB Client Lib
 * **closed-loop**:
-    * Algorithmic Researcher starts experiment from hub
-    * Orchestrator uploads results (JSON) to hub and closes submission
+  * Algorithmic Researcher starts experiment from hub
+  * Orchestrator uploads results (JSON) to hub and closes submission
 * **interactive-loop**:  manually upload your test results (JSON) via
-    * Human Factors Researcher starts experiment from hub
-    * orchestrator uploads results (JSON) to hub
-    * Human Factors Researcher complements submission manually via FAB UI or Python CLI
-    * Human Factors Researcher closes submission manually
+  * Human Factors Researcher starts experiment from hub
+  * orchestrator uploads results (JSON) to hub
+  * Human Factors Researcher complements submission manually via FAB UI or Python CLI
+  * Human Factors Researcher closes submission manually
 
 ## Architecture
 
@@ -34,33 +34,33 @@ Arrows indicate information flow and not control flow.
 
 ```mermaid
 sequenceDiagram
-    participant FAB
-    participant Orchestrator
-    participant TestRunner_TestEvaluator
-    participant HumanFactorsResearcher
-    alt closed-loop
-        FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
-        Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
-        TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
-        Orchestrator ->> FAB: <TestId>_<SubmissionId>.json
-        Orchestrator ->> FAB: close submission
-    else interactive-loop
-        FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
-        Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
-        opt automatic partial scoring
-            TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
-            Orchestrator ->> FAB: upload <TestId>_<SubmissionId>.json
-        end
-        TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
-        HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
-        HumanFactorsResearcher ->> FAB: close submission
-    else offline-loop
-        HumanFactorsResearcher ->> TestRunner_TestEvaluator: Any
-        TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
-        HumanFactorsResearcher ->> FAB: create new submission SubmissionId
-        HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
-        HumanFactorsResearcher ->> FAB: close submission
+  participant FAB
+  participant Orchestrator
+  participant TestRunner_TestEvaluator
+  participant HumanFactorsResearcher
+  alt closed-loop
+    FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
+    Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
+    TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
+    Orchestrator ->> FAB: <TestId>_<SubmissionId>.json
+    Orchestrator ->> FAB: close submission
+  else interactive-loop
+    FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
+    Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
+    opt automatic partial scoring
+      TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
+      Orchestrator ->> FAB: upload <TestId>_<SubmissionId>.json
     end
+    TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
+    HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
+    HumanFactorsResearcher ->> FAB: close submission
+  else offline-loop
+    HumanFactorsResearcher ->> TestRunner_TestEvaluator: Any
+    TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
+    HumanFactorsResearcher ->> FAB: create new submission SubmissionId
+    HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
+    HumanFactorsResearcher ->> FAB: close submission
+  end
 ```
 
 ## TL;DR;
@@ -70,7 +70,7 @@ sequenceDiagram
 In your domain-specific infrastructure:
 
 1. Clone this repo.
-2. Run orchestrator: The following command loads the `orchestrator` module from `orchestrator.py` and starts a worker pool of size 5 (`concurrency` option):
+2. Run orchestrator: The following command loads the railway orchestrator in the background:
 
 ```shell
 export BENCHMARK_ID=<get it from Flatland>
@@ -80,14 +80,18 @@ export CLIENT_ID=<get it from Flatland>
 export CLIENT_SECRET=<get it from Flatland>
 export FAB_API_URL=https://ai4realnet-int.flatland.cloud:8000
 export RABBITMQ_KEYFILE=.../certs/tls.key # get it from Flatland
-export RABBITMQ_CERTFILE=.../tls.crt # get it from Flatland
-export RABBITMQ_CA_CERTS=.../ca.crt # get it from Flatland
+export RABBITMQ_CERTFILE=.../certs/tls.crt # get it from Flatland
+export RABBITMQ_CA_CERTS=.../certs/ca.crt # get it from Flatland
 ...
 
+
+conda create -n railway-orchestrator python=3.13
 conda activate railway-orchestrator
-python -m celery -A ai4realnet_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n --soft-time-limit  600 --time-limit 720 --concurrency 5 -Q ${BENCHMARK_ID}
+python -m pip install -r requirements.txt -r ai4realnet_orchestrators/railway/requirements.txt
+python -m celery -A ai4realnet_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n -Q ${BENCHMARK_ID} --logfile=$PWD/railway-orchestrator.log --pidfile=$PWD/railway-orchestrator.pid --detach
 ```
 
 See https://docs.celeryq.dev/en/stable/reference/cli.html#celery-worker for the available options to start a Celery worker.
+In particular, use `concurrency` option to determine the worker pool size.
 
 
