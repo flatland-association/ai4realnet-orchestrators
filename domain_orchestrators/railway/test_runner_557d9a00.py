@@ -1,37 +1,31 @@
 import logging
 import os
-from pathlib import Path
-from typing import Any
 
 import pandas as pd
 
+from domain_orchestrators.test_runner import TestRunner
 from fab_exec_utils import exec_with_logging
 
+# required only for docker in docker
+DATA_VOLUME = os.environ.get("DATA_VOLUME")
 
-def run_and_evaluate_test_557d9a00(submission_id: str, test_id: str, submission_data_url: str) -> Any:
-  """
-  Run experiment and upload results.
+SUDO = os.environ.get("SUDO", "true").lower() == "true"
+DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 
-  Parameters
-  ----------
-  submission_id: specifies the submission
-  test_id: specifies the test to execute
-  submission_data_url: reference to the prediction module to use
-  """
 
-  # required only for docker in docker
-  DATA_VOLUME = os.environ.get("DATA_VOLUME")
+class TestRunner557d9a00(TestRunner):
 
-  # sudo required when doing DinD - otherwise, we get "permission denied while trying to connect to the Docker daemon socket"
-  SUDO = os.environ.get("SUDO", "true").lower() == "true"
-  DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
-  results = []
-  for scenario_id, seed in [('1ae61e4f-201b-4e97-a399-5c33fb75c57e', "42"), ('564ebb54-48f0-4837-8066-b10bb832af9d', "43")]:
+  def run_scenario(self, scenario_id: str, submission_id: str):
+    seed = self.load_scenario_data(scenario_id)
+    # here you would implement the logic to run the test for the scenario
+    # data and other stuff initialized in the init method can be used here
+    # for demonstration, we return a dummy result
+
     # --data-dir must exist -- TODO fix in flatland-rl instead
-    args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{submission_id}/{test_id}/{scenario_id}"]
+    args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
     exec_with_logging(args if not SUDO else ["sudo"] + args)
     args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
-            f"/vol/{submission_id}/{test_id}/{scenario_id}"]
+            f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
     exec_with_logging(args if not SUDO else ["sudo"] + args)
 
     args = [
@@ -45,10 +39,10 @@ def run_and_evaluate_test_557d9a00(submission_id: str, test_id: str, submission_
       "-e", "PYTHONUNBUFFERED=1",
       # for integration tests with localhost http
       "-e", "OAUTHLIB_INSECURE_TRANSPORT=1",
-      submission_data_url,
+      self.submission_data_url,
       # TODO hard-coded dependency on flatland-baselines
       "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
-      "--data-dir", f"/app/data/{submission_id}/{test_id}/{scenario_id}",
+      "--data-dir", f"/app/data/{submission_id}/{self.test_id}/{scenario_id}",
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
       "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
       "--ep-id", scenario_id,
@@ -57,22 +51,24 @@ def run_and_evaluate_test_557d9a00(submission_id: str, test_id: str, submission_
     exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
 
     # run your experiment here and write results to "@TestId.json"
-    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv", sep="\t")
+    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv", sep="\t")
     print(df)
     assert len(df) == 1
     print(df.iloc[0])
     success_rate = df.iloc[0]["success_rate"]
     print(success_rate)
 
-    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv", sep="\t")
+    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+                     sep="\t")
     print(df)
 
     rewards = df["reward"].sum()
     print(rewards)
 
-    results += [
-      (scenario_id, 'primary', rewards),
-      (scenario_id, 'secondary', success_rate),
-    ]
+    return {
+      'primary': rewards,
+      'secondary': success_rate
+    }
 
-  return results
+  def load_scenario_data(self, scenario_id: str) -> str:
+    return {'1ae61e4f-201b-4e97-a399-5c33fb75c57e': "42", '564ebb54-48f0-4837-8066-b10bb832af9d': "43"}[scenario_id]
