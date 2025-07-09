@@ -8,7 +8,11 @@ from typing import List
 
 from celery import Celery
 
-from .test_runner_evaluator_557d9a00 import run_and_evaluate_test_557d9a00
+from fab_clientlib import DefaultApi, Configuration, ApiClient, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest, \
+  ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner
+
+from domain_orchestrators.railway.test_runner_evaluator_557d9a00 import run_and_evaluate_test_557d9a00
+from fab_oauth_utils import backend_application_flow
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +40,11 @@ class TaskExecutionError(Exception):
 # https://docs.celeryq.dev/en/stable/userguide/tasks.html#names: Every task must have a unique name.
 @app.task(name=os.environ.get("BENCHMARK_ID"), bind=True)
 def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwargs):
+  FAB_API_URL = os.environ.get("FAB_API_URL")
+  CLIENT_ID = os.environ.get("CLIENT_ID", 'fab-client-credentials')
+  CLIENT_SECRET = os.environ.get("CLIENT_SECRET")
+  TOKEN_URL = os.environ.get("TOKEN_URL", "https://keycloak.flatland.cloud/realms/flatland/protocol/openid-connect/token")
+
   try:
     # we use the submission_id as the unique id of the executing task.
     submission_id = self.request.id
@@ -44,12 +53,25 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
     logger.info(f"Queue/task {benchmark_id} received submission {submission_id} with submission_data_url={submission_data_url} for tests={tests}")
     for test_id in tests:
       if test_id == "557d9a00-7e6d-410b-9bca-a017ca7fe3aa":
-        run_and_evaluate_test_557d9a00(submission_id=submission_id, test_id=test_id, submission_data_url=submission_data_url)
+        results = run_and_evaluate_test_557d9a00(submission_id=submission_id, test_id=test_id, submission_data_url=submission_data_url)
       elif test_id == "[INSERT HERE: @TestId]":
         pass
       else:
         raise TaskExecutionError(status={"orchestrator": "FAILED"}, message=f"Test {test_id} not implemented in {self}")
 
+      token = backend_application_flow(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)
+      print(token)
+      fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL, access_token=token["access_token"])))
+      fab.results_submissions_submission_id_tests_test_ids_post(
+        submission_id=submission_id,
+        test_ids=[test_id],
+        results_submissions_submission_id_tests_test_ids_post_request=ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest(
+          data=[ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
+            scenario_id=scenario_id,
+            additional_properties={key: value}
+          ) for scenario_id, test_id, submission_id, key, value in results]
+        )
+      )
     return {
       "status": "SUCCESS",
       "message": "message"
