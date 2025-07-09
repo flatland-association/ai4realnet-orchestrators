@@ -61,6 +61,7 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
 
       token = backend_application_flow(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)
       print(token)
+      print(results)
       fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL, access_token=token["access_token"])))
       fab.results_submissions_submission_id_tests_test_ids_post(
         submission_id=submission_id,
@@ -69,7 +70,7 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
           data=[ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
             scenario_id=scenario_id,
             additional_properties={key: value}
-          ) for scenario_id, test_id, submission_id, key, value in results]
+          ) for scenario_id, key, value in results]
         )
       )
     return {

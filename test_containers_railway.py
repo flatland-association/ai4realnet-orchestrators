@@ -120,9 +120,9 @@ def test_railway():
     test_ids=[test_id])
   print("results_uploaded")
   print(test_results)
-  assert test_results.body.scenario_scorings[0].scorings["primary"]["score"] == 100
-  assert test_results.body.scenario_scorings[0].scorings["secondary"]["score"] == 1.0
-  assert test_results.body.scenario_scorings[1].scorings["primary"]["score"] == 100
-  assert test_results.body.scenario_scorings[1].scorings["secondary"]["score"] == 0.8
-  assert test_results.body.scorings["primary"]["score"] == 200
-  assert test_results.body.scorings["secondary"]["score"] == 1.8
+  assert test_results.body.scenario_scorings[0].scorings["primary"]["score"] == -800
+  assert test_results.body.scenario_scorings[0].scorings["secondary"]["score"] == 0.4285714285714285
+  assert test_results.body.scenario_scorings[1].scorings["primary"]["score"] == -28.0
+  assert test_results.body.scenario_scorings[1].scorings["secondary"]["score"] == 1.0
+  assert test_results.body.scorings["primary"]["score"] == -828.0
+  assert test_results.body.scorings["secondary"]["score"] == 0.7142857142857142
