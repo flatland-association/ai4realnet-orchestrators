@@ -23,10 +23,10 @@ app = Celery(
   }
 )
 
-railway_orchestrator = Orchestrator(
+your_orchestrator = Orchestrator(
   test_runners={
-    "557d9a00-7e6d-410b-9bca-a017ca7fe3aa": TestRunner557d9a00(
-      test_id="557d9a00-7e6d-410b-9bca-a017ca7fe3aa", scenario_ids=['1ae61e4f-201b-4e97-a399-5c33fb75c57e', '564ebb54-48f0-4837-8066-b10bb832af9d']
+    "<test_id>": TestRunner557d9a00(
+      test_id="<test_id>", scenario_ids=['<first scenario_id>', '<second scenario_id>']
     ),
   }
 )
@@ -41,7 +41,7 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
   logger.info(
     f"Queue/task {benchmark_id} received submission {submission_id} with submission_data_url={submission_data_url} for tests={tests}"
   )
-  railway_orchestrator.run(
+  your_orchestrator.run(
     submission_id=submission_id,
     submission_data_url=submission_data_url,
     tests=tests,

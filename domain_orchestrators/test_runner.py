@@ -8,12 +8,14 @@ class TestRunner:
     self.test_id = test_id
 
   def init(self, submission_data_url: str):
-    # if you want to run some initialization code, e.g. to load data from the submission_data_url
-    self.submission_data_url = submission_data_url
+    """
+    To run some initialization code, e.g. to load data from the submission_data_url
 
-    # TODO extract to template
-    # submission_data = load_submission_data(submission_data_url)
-    # self.model = load_model(submission_data)
+    Parameters
+    ----------
+    submission_data_url : str
+    """
+    self.submission_data_url = submission_data_url
 
   def run(self, submission_id: str):
     # override this method in case all scenarios should be run here, e.g. if special logic is needed
@@ -28,15 +30,3 @@ class TestRunner:
     # this method should be overridden by subclasses
     # scenario_id is passed in case special data or logic is needed for a specific scenario
     raise NotImplementedError("This method should be overridden by subclasses.")
-
-    # TODO extract to template
-    # here you would implement the logic to run the test for the scenario:
-    scenario_data = load_scenario_data(scenario_id)
-    model = self.model
-
-    # data and other stuff initialized in the init method can be used here
-    # for demonstration, we return a dummy result
-    return {
-      "key_1": "value_1",
-      "key_2": "value_2",
-    }

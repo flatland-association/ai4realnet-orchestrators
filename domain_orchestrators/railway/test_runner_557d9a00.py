@@ -8,15 +8,15 @@ from fab_exec_utils import exec_with_logging
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")
-
 SUDO = os.environ.get("SUDO", "true").lower() == "true"
+
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 
 
 class TestRunner557d9a00(TestRunner):
 
   def run_scenario(self, scenario_id: str, submission_id: str):
-    seed = self.load_scenario_data(scenario_id)
+    seed = TestRunner557d9a00.load_scenario_data(scenario_id)
     # here you would implement the logic to run the test for the scenario
     # data and other stuff initialized in the init method can be used here
     # for demonstration, we return a dummy result
@@ -27,7 +27,6 @@ class TestRunner557d9a00(TestRunner):
     args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
             f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
     exec_with_logging(args if not SUDO else ["sudo"] + args)
-
     args = [
       "docker", "run",
       "--rm",
@@ -50,19 +49,19 @@ class TestRunner557d9a00(TestRunner):
     ]
     exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
 
-    # run your experiment here and write results to "@TestId.json"
-    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv", sep="\t")
-    print(df)
-    assert len(df) == 1
-    print(df.iloc[0])
-    success_rate = df.iloc[0]["success_rate"]
+    df_trains_arrived = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv",
+                                    sep="\t")
+    print(df_trains_arrived)
+    assert len(df_trains_arrived) == 1
+    print(df_trains_arrived.iloc[0])
+    success_rate = df_trains_arrived.iloc[0]["success_rate"]
     print(success_rate)
 
-    df = pd.read_csv(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-                     sep="\t")
-    print(df)
-
-    rewards = df["reward"].sum()
+    df_trains_rewards_dones_Infos = pd.read_csv(
+      f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+      sep="\t")
+    print(df_trains_rewards_dones_Infos)
+    rewards = df_trains_rewards_dones_Infos["reward"].sum()
     print(rewards)
 
     return {
@@ -70,5 +69,6 @@ class TestRunner557d9a00(TestRunner):
       'secondary': success_rate
     }
 
-  def load_scenario_data(self, scenario_id: str) -> str:
+  @staticmethod
+  def load_scenario_data(scenario_id: str) -> str:
     return {'1ae61e4f-201b-4e97-a399-5c33fb75c57e': "42", '564ebb54-48f0-4837-8066-b10bb832af9d': "43"}[scenario_id]
