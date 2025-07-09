@@ -41,7 +41,7 @@ class Orchestrator:
     """
     try:
       for test_id in tests:
-        test_runner = self.test_runners.get(tests[0])
+        test_runner = self.test_runners.get(test_id)
         if not test_runner:
           raise TaskExecutionError(
             status={"orchestrator": "FAILED"},
