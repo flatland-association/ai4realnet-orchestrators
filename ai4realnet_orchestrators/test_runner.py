@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List
+from typing import List, Tuple
 
 
 class TestRunner:
@@ -23,8 +23,16 @@ class TestRunner:
     self.submission_data_url = submission_data_url
     self.submission_id = submission_id
 
-  def run(self):
-    # override this method in case all scenarios should be run here, e.g. if special logic is needed
+  def run(self) -> List[Tuple[str, str, str]]:
+    """
+    In general, no need to override this method.
+    Override this method in case all scenarios should be run here, e.g. if special logic is needed.
+
+    Returns
+    -------
+    List[Tuple[str, str, str]]
+      scenario_id, key, value
+    """
     results = []
     for scenario_id in self.scenario_ids:
       scenario_results = self.run_scenario(scenario_id, self.submission_id)
@@ -35,8 +43,9 @@ class TestRunner:
   @abstractmethod
   def run_scenario(self, scenario_id: str, submission_id: str):
     """
-    This method must be overridden by subclasses
-    scenario_id
+    This method must be overridden by subclasses. Called by default implementation of run method.
+    scenario_id : str
+      scenario ID (UUID)
 
     Parameters
     ----------
