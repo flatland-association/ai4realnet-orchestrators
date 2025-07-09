@@ -98,6 +98,7 @@ def run_task(benchmark_id: str, task_id: str, submission_data_url: str, tests: L
 
 
 @pytest.mark.usefixtures("test_containers_fixture")
+@pytest.mark.integration
 def test_railway():
   benchmark_id = '20ccc7c1-034c-4880-8946-bffc3fed1359'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
