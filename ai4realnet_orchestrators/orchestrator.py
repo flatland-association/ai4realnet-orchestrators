@@ -71,5 +71,5 @@ class Orchestrator:
         )
       return {"status": "SUCCESS", "message": f"Run submission {submission_id} for test {test_id} on submission data URL {submission_data_url}"}
     except BaseException as e:
-      print(f"{e} with tb {traceback.format_exc()}")
+      print(f"Run submission {submission_id} for test {test_id} on submission data URL {submission_data_url} failed with {e}, {traceback.format_exc()}")
       return {"status": "FAILED", "message": f"{e} with tb {traceback.format_exc()}"}
