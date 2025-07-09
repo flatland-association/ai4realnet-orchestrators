@@ -27,8 +27,19 @@ class Orchestrator:
   def run(
     self, submission_id: str, submission_data_url: str, tests: List[str] = None
   ):
-    try:
+    """
+    In general, no need to override.
 
+    Parameters
+    ----------
+    submission_id : str
+      passed for logging/temp file names.
+    submission_data_url
+      submission data url specifying the submission to be evaluated in the test.
+    tests : List[str]
+      singleton list containing test_id
+    """
+    try:
       for test_id in tests:
         test_runner = self.test_runners.get(tests[0])
         if not test_runner:
@@ -36,8 +47,8 @@ class Orchestrator:
             status={"orchestrator": "FAILED"},
             message=f"Test {test_id} not implemented in {self}",
           )
-        test_runner.init(submission_data_url=submission_data_url)
-        results = test_runner.run(submission_id)
+        test_runner.init(submission_data_url=submission_data_url, submission_id=submission_id)
+        results = test_runner.run()
 
         token = backend_application_flow(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)
         print(token)
