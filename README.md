@@ -85,7 +85,7 @@ export RABBITMQ_CA_CERTS=.../ca.crt # get it from Flatland
 ...
 
 conda activate railway-orchestrator
-python -m celery -A domain_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n --soft-time-limit  600 --time-limit 720 --concurrency 5 -Q ${BENCHMARK_ID}
+python -m celery -A ai4realnet_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n --soft-time-limit  600 --time-limit 720 --concurrency 5 -Q ${BENCHMARK_ID}
 ```
 
 See https://docs.celeryq.dev/en/stable/reference/cli.html#celery-worker for the available options to start a Celery worker.

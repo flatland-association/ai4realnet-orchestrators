@@ -9,7 +9,7 @@ import pytest
 from celery import Celery
 from testcontainers.compose import DockerCompose
 
-from fab_oauth_utils import backend_application_flow
+from ai4realnet_orchestrators.fab_oauth_utils import backend_application_flow
 from fab_clientlib import DefaultApi, Configuration, ApiClient
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ def test_containers_fixture():
   global basic
 
   start_time = time.time()
-  basic = DockerCompose(context="../..", profiles=["full"])
+  basic = DockerCompose(context="../../../..", profiles=["full"])
   logger.info("/ start docker compose down")
   basic.stop()
   duration = time.time() - start_time
@@ -65,16 +65,15 @@ def test_containers_fixture():
     raise e
 
 
-# TODO extract to dev utils
 def run_task(benchmark_id: str, task_id: str, submission_data_url: str, tests: List[str], **kwargs):
   start_time = time.time()
   app = Celery(
     broker="amqps://guest:guest@localhost:5671",
     backend="rpc://",
     broker_use_ssl={
-      'keyfile': "../../docker/rabbitmq/certs/client_localhost_key.pem",
-      'certfile': "../../docker/rabbitmq/certs/client_localhost_certificate.pem",
-      'ca_certs': "../../docker/rabbitmq/certs/ca_certificate.pem",
+      'keyfile': "../../../../docker/rabbitmq/certs/client_localhost_key.pem",
+      'certfile': "../../../../docker/rabbitmq/certs/client_localhost_certificate.pem",
+      'ca_certs': "../../../../docker/rabbitmq/certs/ca_certificate.pem",
       'cert_reqs': ssl.CERT_REQUIRED
     }
   )

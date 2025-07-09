@@ -6,8 +6,8 @@ from typing import List
 
 from celery import Celery
 
-from domain_orchestrators.orchestrator import Orchestrator
-from domain_orchestrators.railway.test_runner_557d9a00 import TestRunner557d9a00
+from ai4realnet_orchestrators.orchestrator import Orchestrator
+from ai4realnet_orchestrators.railway.test_runner_557d9a00 import TestRunner557d9a00
 
 logger = logging.getLogger(__name__)
 

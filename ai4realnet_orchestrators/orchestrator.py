@@ -2,10 +2,10 @@ import os
 import traceback
 from typing import Dict, List
 
-from domain_orchestrators.test_runner import TestRunner
+from ai4realnet_orchestrators.test_runner import TestRunner
 from fab_clientlib import Configuration, ApiClient, DefaultApi, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner, \
   ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest
-from fab_oauth_utils import backend_application_flow
+from ai4realnet_orchestrators.fab_oauth_utils import backend_application_flow
 
 FAB_API_URL = os.environ.get("FAB_API_URL")
 CLIENT_ID = os.environ.get("CLIENT_ID", 'fab-client-credentials')

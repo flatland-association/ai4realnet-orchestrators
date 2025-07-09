@@ -3,8 +3,8 @@ import os
 
 import pandas as pd
 
-from domain_orchestrators.test_runner import TestRunner
-from fab_exec_utils import exec_with_logging
+from ai4realnet_orchestrators.test_runner import TestRunner
+from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")

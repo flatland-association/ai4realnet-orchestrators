@@ -5,3 +5,4 @@ typing-extensions >= 4.7.1
 oauthlib >=3.2.2
 requests-oauthlib >=2.0.0
 celery==5.5.2
+fab-clientlib

@@ -1,4 +1,4 @@
-from domain_orchestrators.test_runner import TestRunner
+from ai4realnet_orchestrators.test_runner import TestRunner
 
 
 class YourTestRunner(TestRunner):
