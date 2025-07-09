@@ -25,7 +25,7 @@ class Orchestrator:
     self.test_runners = test_runners or {}
 
   def run(
-    self, submission_id: str, submission_data_url: str, tests: List[str] = None
+    self, submission_id: str, submission_data_url: str, tests: List[str] = None, fab: DefaultApi = None,
   ):
     """
     In general, no need to override.
@@ -38,6 +38,8 @@ class Orchestrator:
       submission data url specifying the submission to be evaluated in the test.
     tests : List[str]
       singleton list containing test_id
+    fab : DefaultApi
+      re-use FAB API client. Used in testing.
     """
     try:
       for test_id in tests:
@@ -49,11 +51,13 @@ class Orchestrator:
           )
         test_runner.init(submission_data_url=submission_data_url, submission_id=submission_id)
         results = test_runner.run()
-
-        token = backend_application_flow(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)
-        print(token)
         print(results)
-        fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL, access_token=token["access_token"])))
+
+        if fab is None:
+          token = backend_application_flow(CLIENT_ID, CLIENT_SECRET, TOKEN_URL)
+          print(token)
+
+          fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL, access_token=token["access_token"])))
 
         # could also be sent at once, but this way we get continuous updates
         fab.results_submissions_submission_id_tests_test_ids_post(
@@ -69,7 +73,11 @@ class Orchestrator:
             ]
           ),
         )
-      return {"status": "SUCCESS", "message": f"Run submission {submission_id} for test {test_id} on submission data URL {submission_data_url}"}
+      return {"status": "SUCCESS", "message": f"Run submission {submission_id} for test {tests} on submission data URL {submission_data_url}"}
     except BaseException as e:
-      print(f"Run submission {submission_id} for test {test_id} on submission data URL {submission_data_url} failed with {e}, {traceback.format_exc()}")
-      return {"status": "FAILED", "message": f"{e} with tb {traceback.format_exc()}"}
+      if isinstance(e, TaskExecutionError):
+        raise e
+      raise TaskExecutionError(
+        status={"orchestrator": "FAILED"},
+        message=f"Run submission {submission_id} for test {tests} on submission data URL {submission_data_url} failed with {e}, {traceback.format_exc()}",
+      )
