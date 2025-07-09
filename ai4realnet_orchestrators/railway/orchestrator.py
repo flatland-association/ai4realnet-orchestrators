@@ -41,7 +41,7 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
   logger.info(
     f"Queue/task {benchmark_id} received submission {submission_id} with submission_data_url={submission_data_url} for tests={tests}"
   )
-  railway_orchestrator.run(
+  return railway_orchestrator.run(
     submission_id=submission_id,
     submission_data_url=submission_data_url,
     tests=tests,
