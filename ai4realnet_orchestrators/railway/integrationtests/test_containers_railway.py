@@ -37,8 +37,8 @@ def test_containers_fixture():
         duration = time.time() - start_time
         logger.info(f"\\ end docker compose up. Took {duration:.2f} seconds.")
 
-        task_id = str(uuid.uuid4())
-        yield task_id
+        submission_id = str(uuid.uuid4())
+        yield submission_id
 
         # TODO workaround for testcontainers not supporting streaming to logger
         start_time = time.time()
@@ -65,7 +65,7 @@ def test_containers_fixture():
         raise e
 
 
-def run_task(benchmark_id: str, task_id: str, submission_data_url: str, tests: List[str], **kwargs):
+def run_task(benchmark_id: str, submission_id: str, submission_data_url: str, tests: List[str], **kwargs):
     start_time = time.time()
     app = Celery(
         broker="amqps://guest:guest@localhost:5671",
@@ -78,11 +78,11 @@ def run_task(benchmark_id: str, task_id: str, submission_data_url: str, tests: L
         }
     )
 
-    logger.info(f"/ Start simulate submission from portal for task_id={task_id}.....")
+    logger.info(f"/ Start simulate submission from portal for submission_id={submission_id}.....")
 
     ret = app.send_task(
         benchmark_id,
-        task_id=task_id,
+        task_id=submission_id,
         kwargs={
             "submission_data_url": submission_data_url,
             "tests": tests,
@@ -93,7 +93,7 @@ def run_task(benchmark_id: str, task_id: str, submission_data_url: str, tests: L
     logger.info(ret)
     duration = time.time() - start_time
     logger.info(
-        f"\\ End simulate submission from portal for task_id={task_id}. Took {duration} seconds.")
+        f"\\ End simulate submission from portal for submission_id={submission_id}. Took {duration} seconds.")
     return ret
 
 
