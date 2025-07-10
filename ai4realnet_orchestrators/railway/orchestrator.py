@@ -6,8 +6,10 @@ from typing import List
 
 from celery import Celery
 
+from ai4realnet_orchestrators.fab_oauth_utils import backend_application_flow
 from ai4realnet_orchestrators.orchestrator import Orchestrator
 from ai4realnet_orchestrators.railway.test_runner_557d9a00 import TestRunner557d9a00
+from fab_clientlib import ApiClient, DefaultApi, Configuration
 
 logger = logging.getLogger(__name__)
 
@@ -41,8 +43,16 @@ def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwar
   logger.info(
     f"Queue/task {benchmark_id} received submission {submission_id} with submission_data_url={submission_data_url} for tests={tests}"
   )
+  # fail fast
+  check_fab_healthy()
   return railway_orchestrator.run(
     submission_id=submission_id,
     submission_data_url=submission_data_url,
     tests=tests,
   )
+
+
+def check_fab_healthy():
+  FAB_API_URL = os.environ.get("FAB_API_URL")
+  fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL)))
+  print(fab.health_live_get())
