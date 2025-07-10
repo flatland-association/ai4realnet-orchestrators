@@ -25,6 +25,15 @@ def test_containers_fixture():
   global basic
 
   start_time = time.time()
+  # flatland-benchmarks
+  # ├── docker-compose.yml              <-- ../.. relative to $PWD
+  # ├── docker/                         <-- ../../docker relative to $PWD
+  # └── evaluation
+  #     └── ai4realnet_orchestrators     <-- repo root = $PWD when tests are executed
+  #         └── ai4realnet_orchestrators
+  #             └── railway
+  #                 └── integrationtests
+  #                     └── test_containers_railway.py
   basic = DockerCompose(context="../..", profiles=["full"])
   logger.info("/ start docker compose down")
   basic.stop()
