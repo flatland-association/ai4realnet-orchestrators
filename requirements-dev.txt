@@ -1,0 +1,3 @@
+# additional requirements for running tests
+pytest-mockito==0.0.4
+testcontainers==4.9.1
