@@ -36,8 +36,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: flatland-association/flatland-benchmarks
-          # TODO remove
-          ref: 232-extract-blueprint
           path: flatland-benchmarks
       - uses: actions/checkout@v4
         with:
