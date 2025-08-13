@@ -35,7 +35,7 @@ VALUES
   ('68d38d65-790b-4464-8fea-95d70a7a7de5', 'Playground Electricity Network', 'Playground Electricity Network', array['286aa338-435b-47ca-ab26-4d0cbb2b6e07','b611bf09-c7d5-419a-a9f8-bb6fd0dd6477']::uuid[], array['871f3eef-2bf4-4c04-ae6e-b6992581736a', 'dc2f1e4c-043a-41f3-a457-7288d38d28da']::uuid[]);
 ```
 
-## Air Traffic Network
+## Air Traffic Management
 
 ```sql
 INSERT INTO field_definitions
@@ -65,7 +65,7 @@ VALUES
 INSERT INTO benchmark_definitions
   (id, name, description, field_ids, test_ids)
 VALUES
-  ('a4ac9d1b-7944-42a9-8134-77b7fba9f99c', 'Playground Air Traffic Network', 'Playground Air Traffic Network', array['38f82a6c-0218-4ae6-8aab-7c1fe7f749ce','22441689-e6a5-41c4-bc31-9dc27257f5eb']::uuid[], array['3a842fef-2190-4506-8fb5-b5cf1f06a1b9', 'ae913225-68f3-43b7-8308-0ca29a722565']::uuid[]);
+  ('a4ac9d1b-7944-42a9-8134-77b7fba9f99c', 'Playground Air Traffic Management', 'Playground Air Traffic Management', array['38f82a6c-0218-4ae6-8aab-7c1fe7f749ce','22441689-e6a5-41c4-bc31-9dc27257f5eb']::uuid[], array['3a842fef-2190-4506-8fb5-b5cf1f06a1b9', 'ae913225-68f3-43b7-8308-0ca29a722565']::uuid[]);
 ```
 
 ## Railway Network
