@@ -22,7 +22,7 @@ It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientli
 * **closed-loop**:
     * Algorithmic Researcher starts experiment from hub
     * Orchestrator uploads results (JSON) to hub and closes submission
-* **interactive-loop**:  manually upload your test results (JSON) via
+* **interactive-loop**: 
     * Human Factors Researcher starts experiment from hub
     * orchestrator uploads results (JSON) to hub
     * Human Factors Researcher complements submission manually via FAB UI or Python CLI
