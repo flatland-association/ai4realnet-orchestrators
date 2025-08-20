@@ -41,11 +41,7 @@ class TestRunnerc4c70f8a(TestRunner):
         TrajectoryEvaluator(trajectory, cb).evaluate(end_step=150, skip_rewards_dones_infos=True)
         print(cb.events)
         print(cb.contexts)
-
-        # TODO empty upload
-        return {
-            'primary': -1
-        }
+        return {}
 
     @staticmethod
     def load_scenario_data(scenario_id: str) -> str:
