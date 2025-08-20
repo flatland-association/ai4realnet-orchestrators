@@ -99,4 +99,29 @@ INSERT INTO benchmark_definitions
   (id, name, description, field_ids, test_ids)
 VALUES
   ('931e7cdf-a580-43f3-9d73-a54d07be13ac', 'Playground Railway', 'Playground Railway', array['d78ddc15-ab85-4b0e-b221-51a0427e1003','4ed0b046-098e-4e05-a358-517956e0571d']::uuid[], array['216bf91c-5d0b-4704-a7bf-d913ad9c4598', '7cb6745c-960b-4508-9eba-90e1202d1e70']::uuid[]);
+  
+  
+
+INSERT INTO field_definitions
+  (id, key, description, agg_func, agg_weights)
+  VALUES
+  ('2e6e2e91-ec2d-4d51-969a-54b2666ac377', 'normalized_reward', 'Scenario score (raw values)', NULL, NULL),
+  ('ab5b8fec-8302-431e-be61-900a016a9a9c', 'normalized_reward', 'Test score (NANSUM of scenario scores)', 'NANSUM', NULL),
+  ('77f6c296-52b8-44d4-b634-fe8d175c9038', 'normalized_reward', 'Benchmark score (NANSUM of test scores)', 'NANSUM', NULL),
+  ('8c07bec9-fb94-4a0c-804e-472c5dc302de', 'percentage_complete', 'Scenario score (raw values)', NULL, NULL),
+  ('762cfa8a-e557-4367-8390-a54814741c94', 'percentage_complete', 'Test score (NANMEAN of scenario scores)', 'NANMEAN', NULL),
+  ('d83217a3-126e-487a-b5be-fc5be863cd50', 'percentage_complete', 'Benchmark score (NANMEAN of test scores)', 'NANMEAN', NULL);
+  
+INSERT INTO scenario_definitions
+  (id, name, description, field_ids)
+  VALUES
+  ('cf8e0a9b-14af-43e1-b1fc-e43bf3aaddd7', 'Test 0 Level 0', 'Test 0 Level 0', array['2e6e2e91-ec2d-4d51-969a-54b2666ac377','8c07bec9-fb94-4a0c-804e-472c5dc302de']::uuid[]);
+INSERT INTO test_definitions
+  (id, name, description, field_ids, scenario_ids, loop)
+VALUES
+('c4c70f8a-679c-4044-a9d4-5e0ce0780a0f', 'Test 0', 'lorem ipsum', array['ab5b8fec-8302-431e-be61-900a016a9a9c','762cfa8a-e557-4367-8390-a54814741c94']::uuid[], array['cf8e0a9b-14af-43e1-b1fc-e43bf3aaddd7']::uuid[], 'INTERACTIVE');
+INSERT INTO benchmark_definitions
+  (id, name, description, field_ids, test_ids)
+VALUES
+  ('734144d1-c88c-4371-9dcf-72dd5dfe058e', 'Playground Railway (interactive)', 'Playground Railway (interactive)', array['77f6c296-52b8-44d4-b634-fe8d175c9038','d83217a3-126e-487a-b5be-fc5be863cd50']::uuid[], array['c4c70f8a-679c-4044-a9d4-5e0ce0780a0f']::uuid[]);
 ```
