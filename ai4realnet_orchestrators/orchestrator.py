@@ -61,19 +61,20 @@ class Orchestrator:
                     fab = DefaultApi(ApiClient(configuration=Configuration(host=FAB_API_URL, access_token=token["access_token"])))
 
                 # could also be sent at once, but this way we get continuous updates
-                fab.results_submissions_submission_id_tests_test_ids_post(
-                    submission_id=submission_id,
-                    test_ids=[test_id],
-                    results_submissions_submission_id_tests_test_ids_post_request=ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest(
-                        data=[
-                            ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
-                                scenario_id=scenario_id,
-                                additional_properties={key: value},
-                            )
-                            for scenario_id, key, value in results
-                        ]
-                    ),
-                )
+                if len(results) > 0:
+                    fab.results_submissions_submission_id_tests_test_ids_post(
+                        submission_id=submission_id,
+                        test_ids=[test_id],
+                        results_submissions_submission_id_tests_test_ids_post_request=ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest(
+                            data=[
+                                ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
+                                    scenario_id=scenario_id,
+                                    additional_properties={key: value},
+                                )
+                                for scenario_id, key, value in results
+                            ]
+                        ),
+                    )
             return {"status": "SUCCESS", "message": f"Run submission {submission_id} for test {tests} on submission data URL {submission_data_url}"}
         except BaseException as e:
             if isinstance(e, TaskExecutionError):
