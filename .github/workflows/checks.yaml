@@ -37,6 +37,7 @@ jobs:
         with:
           repository: flatland-association/flatland-benchmarks
           path: flatland-benchmarks
+          ref: v0.10.0
       - uses: actions/checkout@v4
         with:
           path: flatland-benchmarks/evaluation/ai4realnet_orchestrators
