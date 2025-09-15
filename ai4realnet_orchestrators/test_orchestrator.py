@@ -1,20 +1,24 @@
+import uuid
+
 import mockito
 import pytest
-from fab_clientlib import DefaultApi, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner
 from mockito import mock, when, verify
 
 from ai4realnet_orchestrators.orchestrator import Orchestrator, TaskExecutionError
 from ai4realnet_orchestrators.test_runner import TestRunner
+from fab_clientlib import DefaultApi, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest, ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner
 
 
 def test_orchestrator():
+    a = str(uuid.uuid4())
+    f = str(uuid.uuid4())
     test_runner_dummy: TestRunner = mock()
     test_runner_yummy: TestRunner = mock()
     fab: DefaultApi = mock()
     orchestrator = Orchestrator(test_runners={"dummy": test_runner_dummy, "yummy": test_runner_yummy, })
-    when(test_runner_dummy).run().thenReturn([("a", "primary", "55"), ("a", "secondary", "88")])
 
-    when(test_runner_yummy).run().thenReturn([("f", "primary", "99"), ("f", "secondary", "101")])
+    when(test_runner_dummy).run().thenReturn([(a, "primary", 55), (a, "secondary", 88)])
+    when(test_runner_yummy).run().thenReturn([(f, "primary", 99), (f, "secondary", 101)])
     orchestrator.run("subi", "fancy", ["dummy", "yummy"], fab=fab)
     verify(test_runner_dummy, times=1).init(submission_data_url='fancy', submission_id='subi')
     verify(test_runner_yummy, times=1).init(submission_data_url='fancy', submission_id='subi')
@@ -24,12 +28,12 @@ def test_orchestrator():
         results_submissions_submission_id_tests_test_ids_post_request=ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest(
             data=[
                 ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
-                    scenario_id="a",
-                    additional_properties={"primary": "55"},
+                    scenario_id=a,
+                    scores={"primary": 55},
                 ),
                 ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
-                    scenario_id="a",
-                    additional_properties={"secondary": "88"},
+                    scenario_id=a,
+                    scores={"secondary": 88},
                 )
             ]
         )
@@ -40,12 +44,12 @@ def test_orchestrator():
         results_submissions_submission_id_tests_test_ids_post_request=ResultsSubmissionsSubmissionIdTestsTestIdsPostRequest(
             data=[
                 ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
-                    scenario_id="f",
-                    additional_properties={"primary": "99"},
+                    scenario_id=f,
+                    scores={"primary": 99},
                 ),
                 ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
-                    scenario_id="f",
-                    additional_properties={"secondary": "101"},
+                    scenario_id=f,
+                    scores={"secondary": 101},
                 )
             ]
         )
