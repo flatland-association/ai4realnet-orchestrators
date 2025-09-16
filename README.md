@@ -22,13 +22,47 @@ It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientli
 * **closed-loop**:
     * Algorithmic Researcher starts experiment from hub
     * Orchestrator uploads results (JSON) to hub and closes submission
-* **interactive-loop**: 
+* **interactive-loop**:
     * Human Factors Researcher starts experiment from hub
     * orchestrator uploads results (JSON) to hub
     * Human Factors Researcher complements submission manually via FAB UI or Python CLI
     * Human Factors Researcher closes submission manually
 
 ## Architecture
+
+The following diagram gives an overview of the roundtrip from triggering an experiment in the browser to
+a test runner running the experiment in the domain X infrastructure.
+
+```mermaid
+architecture-beta
+group api(cloud)[Flatland Association Infrastructure]
+group railway(cloud)[Domain X Infrastructure]
+
+service browser(server)[Browser]
+
+service hub(server)[Validation Campaign Hub] in api
+
+service queue(server)[Domain X Queue] in api
+
+service orchestrator(server)[Domain X Orchestrator] in railway
+
+service testrunner1(server)[Test Runner 1] in railway
+service testrunner2(server)[Test Runner 2] in railway
+
+
+junction junctionCenter
+
+hub:R <--> L:queue
+queue:B <--> T:orchestrator
+
+hub:B <-- T:junctionCenter
+orchestrator:L -- R:junctionCenter
+
+orchestrator:R <--> L:testrunner1
+orchestrator:B <--> T:testrunner2
+
+browser:R <--> L:hub
+```
 
 Arrows indicate information flow and not control flow.
 
