@@ -7,4 +7,5 @@ oauthlib >=3.2.2
 requests-oauthlib >=2.0.0
 celery==5.5.2
 # DEPENDENCY SWITCH:
-git+https://github.com/flatland-association/flatland-benchmarks.git@feature/integration-api-changes#subdirectory=fab-clientlib
+#git+https://github.com/flatland-association/flatland-benchmarks.git@feature/integration-api-changes#subdirectory=fab-clientlib
+fab-clientlib==0.12.2
