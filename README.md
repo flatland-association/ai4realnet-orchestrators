@@ -17,16 +17,19 @@ It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientli
 ## Experiment Workflows
 
 * **offline-loop**: manually upload your test results (JSON) via
-    * FAB UI
+  * FAB UI to initiate a submission
     * FAB REST API using Python FAB Client Lib
 * **closed-loop**:
     * Algorithmic Researcher starts experiment from hub
     * Orchestrator uploads results (JSON) to hub and closes submission
 * **interactive-loop**:
     * Human Factors Researcher starts experiment from hub
-    * orchestrator uploads results (JSON) to hub
+  * Orchestrator uploads results (JSON) to hub
     * Human Factors Researcher complements submission manually via FAB UI or Python CLI
     * Human Factors Researcher closes submission manually
+
+> [!NOTE]  
+> for closed-loop and interactive-loop, a message is sent to the Domain Orchestrator's queue.
 
 ## Architecture
 
@@ -63,6 +66,12 @@ orchestrator:B <--> T:testrunner2
 
 browser:R <--> L:hub
 ```
+
+Domain Queue names according to [KPI-cards](https://github.com/AI4REALNET/KPIs-cards/blob/main/data/card-data.ts)
+
+* `Railway`
+* `ATM`
+* `Power Grid`
 
 Arrows indicate information flow and not control flow.
 
