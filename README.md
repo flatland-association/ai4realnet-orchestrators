@@ -17,19 +17,23 @@ It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientli
 ## Experiment Workflows
 
 * **offline-loop**: manually upload your test results (JSON) via
-  * FAB UI to initiate a submission
-    * FAB REST API using Python FAB Client Lib
+    * FAB UI to initiate a submission
+        * FAB REST API using Python FAB Client Lib
 * **closed-loop**:
     * Algorithmic Researcher starts experiment from hub
     * Orchestrator uploads results (JSON) to hub and closes submission
 * **interactive-loop**:
     * Human Factors Researcher starts experiment from hub
   * Orchestrator uploads results (JSON) to hub
-    * Human Factors Researcher complements submission manually via FAB UI or Python CLI
-    * Human Factors Researcher closes submission manually
+      * Human Factors Researcher complements submission manually via FAB UI or Python CLI
+      * Human Factors Researcher closes submission manually
 
-> [!NOTE]  
-> for closed-loop and interactive-loop, a message is sent to the Domain Orchestrator's queue.
+> [!TIP]
+> Beware that interactive-loop is meant here from a technical perspective:  
+> For closed-loop and interactive-loop, a message is sent to the Domain Orchestrator's queue, whereas no message is sent in the offline-loop case.
+> An interactive-loop, some results are uploaded automatically as in closed-loop and some results are entered manually as in offline-loop. The submission is
+> published manually when the results are complete.
+> An offline-loop can involve an interactive experiment, but the results are entered manually in the campaign hub via the Web UI.
 
 ## Architecture
 
@@ -77,33 +81,33 @@ Arrows indicate information flow and not control flow.
 
 ```mermaid
 sequenceDiagram
-  participant FAB
-  participant Orchestrator
-  participant TestRunner_TestEvaluator
-  participant HumanFactorsResearcher
-  alt closed-loop
-    FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
-    Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
-    TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
-    Orchestrator ->> FAB: <TestId>_<SubmissionId>.json
-    Orchestrator ->> FAB: close submission
-  else interactive-loop
-    FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
-    Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
-    opt automatic partial scoring
-      TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
-      Orchestrator ->> FAB: upload <TestId>_<SubmissionId>.json
+    participant FAB
+    participant Orchestrator
+    participant TestRunner_TestEvaluator
+    participant HumanFactorsResearcher
+    alt closed-loop
+        FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
+        Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
+        TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
+        Orchestrator ->> FAB: <TestId>_<SubmissionId>.json
+        Orchestrator ->> FAB: close submission
+    else interactive-loop
+        FAB ->> Orchestrator: BenchmarkId, SubmissionId, List[TestId], SubmissionDataUrl
+        Orchestrator ->> TestRunner_TestEvaluator: BenchmarkId,TestId,SubmissionId,SubmissionDataUrl
+        opt automatic partial scoring
+            TestRunner_TestEvaluator ->> Orchestrator: <TestId>_<SubmissionId>.json
+            Orchestrator ->> FAB: upload <TestId>_<SubmissionId>.json
+        end
+        TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
+        HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
+        HumanFactorsResearcher ->> FAB: close submission
+    else offline-loop
+        HumanFactorsResearcher ->> TestRunner_TestEvaluator: Any
+        TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
+        HumanFactorsResearcher ->> FAB: create new submission SubmissionId
+        HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
+        HumanFactorsResearcher ->> FAB: close submission
     end
-    TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
-    HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
-    HumanFactorsResearcher ->> FAB: close submission
-  else offline-loop
-    HumanFactorsResearcher ->> TestRunner_TestEvaluator: Any
-    TestRunner_TestEvaluator ->> HumanFactorsResearcher: Any
-    HumanFactorsResearcher ->> FAB: create new submission SubmissionId
-    HumanFactorsResearcher ->> FAB: upload/complement/edit <TestId>_<SubmissionId>.json
-    HumanFactorsResearcher ->> FAB: close submission
-  end
 ```
 
 ## TL;DR;
