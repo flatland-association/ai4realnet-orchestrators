@@ -2,7 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: use-domain-queue-in-ai4realnet-orchestrator-test
+  flatland-benchmarks-ref: main
 
 on:
   workflow_dispatch:
