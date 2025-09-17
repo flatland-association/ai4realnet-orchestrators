@@ -8,6 +8,9 @@ from celery import Celery
 from fab_clientlib import ApiClient, DefaultApi, Configuration
 
 from ai4realnet_orchestrators.orchestrator import Orchestrator
+from ai4realnet_orchestrators.railway.test_runner_kpi_af_029_railway import TestRunner_KPI_AF_029_Railway
+from ai4realnet_orchestrators.railway.test_runner_kpi_nf_045_railway import TestRunner_KPI_NF_045_Railway
+from ai4realnet_orchestrators.railway.test_runner_kpi_pf_026_railway import TestRunner_KPI_PF_026_Railway
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +28,8 @@ app = Celery(
 
 # Generated with https://github.com/flatland-association/flatland-benchmarks/blob/main/definitions/ai4realnet/gen_ai4realnet_benchmarks_sql.py
 # from https://flatlandassociation.sharepoint.com/:x:/s/FlatlandAssociation/EanEj4dEBHBDsGzo5WyygCsBIBH7jo502okMbMybT6Bx0g?e=6DotJy
+
+
 railway_orchestrator = Orchestrator(
     test_runners={
 
@@ -122,22 +127,22 @@ railway_orchestrator = Orchestrator(
         # "6ff3c588-357c-41a6-a45a-2bd946b158c8": TestRunner_KPI_DF_016_Railway(
         #     test_id="6ff3c588-357c-41a6-a45a-2bd946b158c8", scenario_ids=['ba7f9aac-5e96-4436-bae1-23629c4d153b']
         # ),
-        #
-        # # KPI-PF-026: Punctuality (Railway)
-        # "98ceb866-5479-47e6-a735-81292de8ca65": TestRunner_KPI_PF_026_Railway(
-        #     test_id="98ceb866-5479-47e6-a735-81292de8ca65", scenario_ids=['5a60713d-01f2-4d32-9867-21904629e254']
-        # ),
-        #
-        # # KPI-AF-029: AI Response time (Railway)
-        # "1e226684-a836-468d-9929-b95bbf2f88dc": TestRunner_KPI_AF_029_Railway(
-        #     test_id="1e226684-a836-468d-9929-b95bbf2f88dc", scenario_ids=['c5219c2e-c3b9-4e7a-aefc-b767a9b3005d']
-        # ),
-        #
-        # # KPI-NF-045: Network Impact Propagation (Railway)
-        # "e075d4a7-5cda-4d3c-83ac-69a0db1d74dd": TestRunner_KPI_NF_045_Railway(
-        #     test_id="e075d4a7-5cda-4d3c-83ac-69a0db1d74dd", scenario_ids=['bb6302f1-0dc2-43ed-976b-4e5d3126006a']
-        # ),
-        #
+
+        # KPI-PF-026: Punctuality (Railway)
+        "98ceb866-5479-47e6-a735-81292de8ca65": TestRunner_KPI_PF_026_Railway(
+            test_id="98ceb866-5479-47e6-a735-81292de8ca65", scenario_ids=['5a60713d-01f2-4d32-9867-21904629e254']
+        ),
+
+        # KPI-AF-029: AI Response time (Railway)
+        "1e226684-a836-468d-9929-b95bbf2f88dc": TestRunner_KPI_AF_029_Railway(
+            test_id="1e226684-a836-468d-9929-b95bbf2f88dc", scenario_ids=['c5219c2e-c3b9-4e7a-aefc-b767a9b3005d']
+        ),
+
+        # KPI-NF-045: Network Impact Propagation (Railway)
+        "e075d4a7-5cda-4d3c-83ac-69a0db1d74dd": TestRunner_KPI_NF_045_Railway(
+            test_id="e075d4a7-5cda-4d3c-83ac-69a0db1d74dd", scenario_ids=['bb6302f1-0dc2-43ed-976b-4e5d3126006a']
+        ),
+
         # # KPI-HS-018: Human control/autonomy over the process (Railway)
         # "6a896809-dad8-4248-a2f3-d54373953fe6": TestRunner_KPI_HS_018_Railway(
         #     test_id="6a896809-dad8-4248-a2f3-d54373953fe6", scenario_ids=['dddb0b01-6bab-408e-9b12-4d7ab8e3b542']

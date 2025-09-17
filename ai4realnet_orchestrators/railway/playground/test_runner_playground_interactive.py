@@ -9,9 +9,9 @@ from flatland.trajectories.trajectories import Trajectory
 from ai4realnet_orchestrators.test_runner import TestRunner
 
 
-class TestRunnerc4c70f8a(TestRunner):
+class TestRunnerPlaygroundInteractive(TestRunner):
     def run_scenario(self, scenario_id: str, submission_id: str):
-        scenario = TestRunnerc4c70f8a.load_scenario_data(scenario_id)
+        scenario = TestRunnerPlaygroundInteractive.load_scenario_data(scenario_id)
 
         # scenario Olten has step every 3 seconds for an hour
         STEPS_ONE_HOUR = 1300  # 1h + additional time for agents to leave the map
