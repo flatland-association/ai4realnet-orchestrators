@@ -116,7 +116,6 @@ In your domain-specific infrastructure:
 2. Run orchestrator: The following command loads the railway orchestrator in the background:
 
 ```shell
-export BENCHMARK_ID=<get it from Flatland>
 export BACKEND_URL=rpc://
 export BROKER_URL=amqps://<USER - get it from Flatland>:<PW - get it from Flatland>@rabbitmq-int.flatland.cloud:5671//
 export CLIENT_ID=<get it from Flatland>
