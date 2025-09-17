@@ -67,7 +67,7 @@ def test_containers_fixture():
     raise e
 
 
-def run_task(benchmark_id: str, submission_id: str, submission_data_url: str, tests: List[str], **kwargs):
+def run_task(task_queue_name: str, submission_id: str, submission_data_url: str, tests: List[str], **kwargs):
   start_time = time.time()
   app = Celery(
     broker="amqps://guest:guest@localhost:5671",
@@ -83,14 +83,14 @@ def run_task(benchmark_id: str, submission_id: str, submission_data_url: str, te
   logger.info(f"/ Start simulate submission from portal for submission_id={submission_id}.....")
 
   ret = app.send_task(
-    benchmark_id,
+    task_queue_name,
     task_id=submission_id,
     kwargs={
       "submission_data_url": submission_data_url,
       "tests": tests,
       **kwargs
     },
-    queue=benchmark_id,
+    queue=task_queue_name,
   ).get()
   logger.info(ret)
   duration = time.time() - start_time
@@ -102,13 +102,13 @@ def run_task(benchmark_id: str, submission_id: str, submission_data_url: str, te
 @pytest.mark.usefixtures("test_containers_fixture")
 @pytest.mark.integration
 def test_railway():
-  benchmark_id = '20ccc7c1-034c-4880-8946-bffc3fed1359'  # Celery: queue name = task name
+  task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
-  test_id = "557d9a00-7e6d-410b-9bca-a017ca7fe3aa"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
+  test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
   submission_data_url = "ghcr.io/flatland-association/flatland-baselines:latest"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   try:
-    run_task(benchmark_id, submission_id, submission_data_url, tests=[test_id])
+    run_task(task_queue_name, submission_id, submission_data_url, tests=[test_id])
 
     token = backend_application_flow(
       client_id='fab-client-credentials',
@@ -125,17 +125,20 @@ def test_railway():
     print(test_results)
     assert test_results.body[0].scenario_scorings[0].scorings[0].field_key == "primary"
     assert test_results.body[0].scenario_scorings[0].scorings[0].score == -800
-    assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
-    assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
-    assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
-    assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
+    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 add secondary key and second scenario again
+    # assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
+    # assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
+    # assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
+    # assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
 
+    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 dd secondary key and second scenario again
     assert test_results.body[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scorings[0].score == -828.0
-    assert test_results.body[0].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scorings[1].score == 0.7142857142857142
+    assert test_results.body[0].scorings[0].score == -800.0
+    # assert test_results.body[0].scorings[0].score == -828.0
+    # assert test_results.body[0].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scorings[1].score == 0.7142857142857142
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])

@@ -3,11 +3,16 @@ from typing import List, Tuple
 
 
 class TestRunner:
-    def __init__(self, test_id: str, scenario_ids: List[str] = None):
+    def __init__(self, test_id: str, scenario_ids: List[str] = None, benchmark_id: str = None):
         self.submission_id = None
         self.submission_data_url = None
+
+        # IDs of scenarios
         self.scenario_ids = scenario_ids or []
+        # ID of KPI
         self.test_id = test_id
+        # ID evaluation objective
+        self.benchmark_id = benchmark_id
 
     def init(self, submission_data_url: str, submission_id: str):
         """
