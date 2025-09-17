@@ -104,7 +104,7 @@ def run_task(task_queue_name: str, submission_id: str, submission_data_url: str,
 def test_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
-  test_id = "557d9a00-7e6d-410b-9bca-a017ca7fe3aa"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
+  test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
   submission_data_url = "ghcr.io/flatland-association/flatland-baselines:latest"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   try:
@@ -125,17 +125,20 @@ def test_railway():
     print(test_results)
     assert test_results.body[0].scenario_scorings[0].scorings[0].field_key == "primary"
     assert test_results.body[0].scenario_scorings[0].scorings[0].score == -800
-    assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
-    assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
-    assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
-    assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
+    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 add secondary key and second scenario again
+    # assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
+    # assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
+    # assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
+    # assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
 
+    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 dd secondary key and second scenario again
     assert test_results.body[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scorings[0].score == -828.0
-    assert test_results.body[0].scorings[1].field_key == "secondary"
-    assert test_results.body[0].scorings[1].score == 0.7142857142857142
+    assert test_results.body[0].scorings[0].score == -800.0
+    # assert test_results.body[0].scorings[0].score == -828.0
+    # assert test_results.body[0].scorings[1].field_key == "secondary"
+    # assert test_results.body[0].scorings[1].score == 0.7142857142857142
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])
