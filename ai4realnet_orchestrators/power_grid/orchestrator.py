@@ -8,6 +8,9 @@ from celery import Celery
 
 from ai4realnet_orchestrators.orchestrator import Orchestrator
 
+# NOTE: import YourTestRunner implementations here
+# from ai4realnet_orchestrators.power_grid.test_runner import YourTestRunner
+
 logger = logging.getLogger(__name__)
 
 app = Celery(
@@ -22,8 +25,9 @@ app = Celery(
     }
 )
 
+# NOTE: Uncomment and implement the test runners you want
 # Generated with https://github.com/flatland-association/flatland-benchmarks/blob/main/definitions/ai4realnet/gen_ai4realnet_benchmarks_sql.py
-# from https://flatlandassociation.sharepoint.com/:x:/s/FlatlandAssociation/EanEj4dEBHBDsGzo5WyygCsBIBH7jo502okMbMybT6Bx0g?e=6DotJy
+# from https://inesctecpt.sharepoint.com/:x:/r/sites/AI4REALNET/Shared%20Documents/General/WP4%20-%20Validation%20and%20impact%20assessment/Validation%20campaigns/Overview%20tests%20for%20KPI%20on%20validation%20campaign%20hub.xlsx?d=w947339379458465eaaf243a750315375&csf=1&web=1&e=RnrCdf
 power_grid_orchestrator = Orchestrator(
     test_runners={
 

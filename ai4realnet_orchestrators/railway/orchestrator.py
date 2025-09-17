@@ -8,6 +8,7 @@ from celery import Celery
 from fab_clientlib import ApiClient, DefaultApi, Configuration
 
 from ai4realnet_orchestrators.orchestrator import Orchestrator
+# NOTE: import YourTestRunner implementations here:
 from ai4realnet_orchestrators.railway.test_runner_kpi_af_029_railway import TestRunner_KPI_AF_029_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_nf_045_railway import TestRunner_KPI_NF_045_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_pf_026_railway import TestRunner_KPI_PF_026_Railway
@@ -26,10 +27,9 @@ app = Celery(
     }
 )
 
+# NOTE: Uncomment and implement the test runners you want
 # Generated with https://github.com/flatland-association/flatland-benchmarks/blob/main/definitions/ai4realnet/gen_ai4realnet_benchmarks_sql.py
-# from https://flatlandassociation.sharepoint.com/:x:/s/FlatlandAssociation/EanEj4dEBHBDsGzo5WyygCsBIBH7jo502okMbMybT6Bx0g?e=6DotJy
-
-
+# from https://inesctecpt.sharepoint.com/:x:/r/sites/AI4REALNET/Shared%20Documents/General/WP4%20-%20Validation%20and%20impact%20assessment/Validation%20campaigns/Overview%20tests%20for%20KPI%20on%20validation%20campaign%20hub.xlsx?d=w947339379458465eaaf243a750315375&csf=1&web=1&e=RnrCdf
 railway_orchestrator = Orchestrator(
     test_runners={
 
