@@ -75,11 +75,11 @@ orchestrator:B <--> T:testrunner2
 browser:R <--> L:hub
 ```
 
-Domain Queue names according to [KPI-cards](https://github.com/AI4REALNET/KPIs-cards/blob/main/data/card-data.ts)
+Domain Queue names according to [KPI-cards](https://github.com/AI4REALNET/KPIs-cards/blob/main/data/card-data.ts), with white spaces removed.
 
 * `Railway`
 * `ATM`
-* `Power Grid`
+* `PowerGrid`
 
 Arrows indicate information flow and not control flow.
 

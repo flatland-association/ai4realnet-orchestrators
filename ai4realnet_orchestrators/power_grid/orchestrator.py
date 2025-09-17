@@ -317,7 +317,7 @@ power_grid_orchestrator = Orchestrator(
 
 # https://docs.celeryq.dev/en/stable/userguide/tasks.html#bound-tasks: A task being bound means the first argument to the task will always be the task instance (self).
 # https://docs.celeryq.dev/en/stable/userguide/tasks.html#names: Every task must have a unique name.
-@app.task(name="Power Grid", bind=True)
+@app.task(name="PowerGrid", bind=True)
 def orchestrator(self, submission_data_url: str, tests: List[str] = None, **kwargs):
     submission_id = self.request.id
     benchmark_id = orchestrator.name
