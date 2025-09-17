@@ -124,7 +124,7 @@ In your domain-specific infrastructure:
 2. Run orchestrator: The following command loads the railway orchestrator in the background:
 
 ```shell
-export BENCHMARK_ID=<get it from Flatland>
+export DOMAIN="Railway"
 export BACKEND_URL=rpc://
 export BROKER_URL=amqps://<USER - get it from Flatland>:<PW - get it from Flatland>@rabbitmq-int.flatland.cloud:5671//
 export CLIENT_ID=<get it from Flatland>
@@ -139,7 +139,7 @@ export RABBITMQ_CA_CERTS=.../certs/ca.crt # get it from Flatland
 conda create -n railway-orchestrator python=3.13
 conda activate railway-orchestrator
 python -m pip install -r requirements.txt -r ai4realnet_orchestrators/railway/requirements.txt
-python -m celery -A ai4realnet_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n -Q ${BENCHMARK_ID} --logfile=$PWD/railway-orchestrator.log --pidfile=$PWD/railway-orchestrator.pid --detach
+python -m celery -A ai4realnet_orchestrators.railway.orchestrator worker -l info -n orchestrator@%n -Q ${DOMAIN} --logfile=$PWD/railway-orchestrator.log --pidfile=$PWD/railway-orchestrator.pid --detach
 ```
 
 See https://docs.celeryq.dev/en/stable/reference/cli.html#celery-worker for the available options to start a Celery worker.
