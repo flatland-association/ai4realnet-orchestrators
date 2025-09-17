@@ -6,6 +6,10 @@ This repo contains the domain-specific orchestrator and test runner implementati
 
 It uses the Python library [fab-clientlib](https://pypi.org/project/fab-clientlib/) to upload results to the Validation Campaign Hub (FAB).
 
+> [!TIP]
+> This repo is run [trunk-based](https://www.atlassian.com/continuous-delivery/continuous-integration/trunk-based-development) using shared `main` branch as "
+> trunk" and prs to merge only short-lived feature branches into the "trunk"
+
 ## Organization and Responsibilities
 
 1. The campaign benchmarks are set up in the Validation Campaign Hub by domain-specific project managers (TU Delft, RTE, Flatland) together with FLATLAND IT
