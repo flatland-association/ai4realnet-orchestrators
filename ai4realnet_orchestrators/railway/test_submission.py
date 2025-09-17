@@ -24,7 +24,7 @@ def test_get_submissions():
     _pretty_print(submissions)
 
 
-# @pytest.mark.skip(reason="run manually")
+@pytest.mark.skip(reason="run manually")
 def test_submit(submission_name="S046"):
     fab = _get_fab()
     _pretty_print(fab.health_live_get())
