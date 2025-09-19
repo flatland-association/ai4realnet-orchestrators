@@ -8,16 +8,18 @@ from ai4realnet_orchestrators.test_runner import TestRunner
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")
+SCENARIOS_VOLUME = os.environ.get("SCENARIOS_VOLUME")
 SUDO = os.environ.get("SUDO", "true").lower() == "true"
 
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
+SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
 
 
 # KPI-PF-026: Punctuality (Railway)
 class TestRunner_KPI_PF_026_Railway(TestRunner):
 
     def run_scenario(self, scenario_id: str, submission_id: str):
-        seed = TestRunner_KPI_PF_026_Railway.load_scenario_data(scenario_id)
+        env_path = TestRunner_KPI_PF_026_Railway.load_scenario_data(scenario_id)
         # here you would implement the logic to run the test for the scenario
         # data and other stuff initialized in the init method can be used here
         # for demonstration, we return a dummy result
@@ -32,6 +34,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
             "docker", "run",
             "--rm",
             "-v", f"{DATA_VOLUME}:{DATA_VOLUME_MOUNTPATH}",
+            "-v", f"{SCENARIOS_VOLUME}:{SCENARIOS_VOLUME_MOUNTPATH}",
             "--entrypoint", "/bin/bash",
             # Don't allow subprocesses to raise privileges, see https://github.com/codalab/codabench/blob/43e01d4bc3de26e8339ddb1463eef7d960ddb3af/compute_worker/compute_worker.py#L520
             "--security-opt=no-new-privileges",
@@ -46,7 +49,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
             "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
             "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
             "--ep-id", scenario_id,
-            "--seed", seed,
+            "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
         ]
         exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
 
@@ -73,4 +76,4 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
 
     @staticmethod
     def load_scenario_data(scenario_id: str) -> str:
-        return {'5a60713d-01f2-4d32-9867-21904629e254': "42"}[scenario_id]
+        return {'5a60713d-01f2-4d32-9867-21904629e254': "Test_01/Level_0.pkl"}[scenario_id]
