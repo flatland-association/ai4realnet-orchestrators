@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import ssl
@@ -105,7 +106,8 @@ def test_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
-  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:latest"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
+  # TODO revert to latest
+  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   try:
     run_task(task_queue_name, submission_id, submission_data_url, tests=[test_id])
@@ -122,23 +124,22 @@ def test_railway():
       submission_id=submission_id,
       test_ids=[test_id])
     print("results_uploaded")
-    print(test_results)
-    assert test_results.body[0].scenario_scorings[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scenario_scorings[0].scorings[0].score == -800
-    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 add secondary key and second scenario again
-    # assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
-    # assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
-    # assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
-    # assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
+    _pretty_print(test_results)
+    assert len(test_results.body) == 1
+    test_results = test_results.body[0]
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scenario_scorings[1].scorings[0].score == 0
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
 
-    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 dd secondary key and second scenario again
-    assert test_results.body[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scorings[0].score == -800.0
-    # assert test_results.body[0].scorings[0].score == -828.0
-    # assert test_results.body[0].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scorings[1].score == 0.7142857142857142
+    # TODO only first two scenarios run - run all or use separate test_id for integration testing?
+    assert test_results.scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scorings[0].score is None
+    # TODO add secondary score at test level
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])
@@ -183,3 +184,16 @@ def log_subprocess_output(pipe, level=logging.DEBUG, label="", collect: bool = F
   if collect:
     return s
   return None
+
+
+# https://stackoverflow.com/questions/36588126/uuid-is-not-json-serializable
+class UUIDEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, uuid.UUID):
+      # if the obj is uuid, we simply return the value of uuid
+      return obj.hex
+    return json.JSONEncoder.default(self, obj)
+
+
+def _pretty_print(submissions):
+  print(json.dumps(submissions.to_dict(), indent=4, cls=UUIDEncoder))

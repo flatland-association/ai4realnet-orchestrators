@@ -32,6 +32,3 @@ ADD ./evaluation/ai4realnet_orchestrators ./ai4realnet_orchestrators/
 RUN find .
 
 RUN python -m pip install -U -r ai4realnet_orchestrators/requirements.txt -r ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt
-
-# required because of permissions in volume mounts
-RUN mkdir data/
