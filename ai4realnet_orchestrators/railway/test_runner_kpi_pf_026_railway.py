@@ -31,7 +31,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
         args = [
             "docker", "run",
             "--rm",
-            "-v", f"{DATA_VOLUME}:/app/data",
+            "-v", f"{DATA_VOLUME}:{DATA_VOLUME_MOUNTPATH}",
             "--entrypoint", "/bin/bash",
             # Don't allow subprocesses to raise privileges, see https://github.com/codalab/codabench/blob/43e01d4bc3de26e8339ddb1463eef7d960ddb3af/compute_worker/compute_worker.py#L520
             "--security-opt=no-new-privileges",
@@ -42,7 +42,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
             self.submission_data_url,
             # TODO hard-coded dependency on flatland-baselines
             "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
-            "--data-dir", f"/app/data/{submission_id}/{self.test_id}/{scenario_id}",
+            "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
             "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
             "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
             "--ep-id", scenario_id,
