@@ -69,7 +69,7 @@ class Orchestrator:
                             data=[
                                 ResultsSubmissionsSubmissionIdTestsTestIdsPostRequestDataInner(
                                     scenario_id=scenario_id,
-                                    additional_properties={key: value},
+                                    scores={key: value},
                                 )
                                 for scenario_id, key, value in results
                             ]

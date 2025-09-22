@@ -13,10 +13,11 @@ SUDO = os.environ.get("SUDO", "true").lower() == "true"
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 
 
-class TestRunner557d9a00(TestRunner):
+# KPI-AF-029: AI Response time (Railway)
+class TestRunner_KPI_AF_029_Railway(TestRunner):
 
     def run_scenario(self, scenario_id: str, submission_id: str):
-        seed = TestRunner557d9a00.load_scenario_data(scenario_id)
+        seed = TestRunner_KPI_AF_029_Railway.load_scenario_data(scenario_id)
         # here you would implement the logic to run the test for the scenario
         # data and other stuff initialized in the init method can be used here
         # for demonstration, we return a dummy result
@@ -72,4 +73,4 @@ class TestRunner557d9a00(TestRunner):
 
     @staticmethod
     def load_scenario_data(scenario_id: str) -> str:
-        return {'1ae61e4f-201b-4e97-a399-5c33fb75c57e': "42", '564ebb54-48f0-4837-8066-b10bb832af9d': "43"}[scenario_id]
+        return {'c5219c2e-c3b9-4e7a-aefc-b767a9b3005d': "42"}[scenario_id]

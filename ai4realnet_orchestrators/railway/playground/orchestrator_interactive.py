@@ -24,6 +24,7 @@ app = Celery(
     }
 )
 
+# Playground: https://ai4realnet-int.flatland.cloud/benchmarks/9fbde927-189e-44bb-8432-f63b491aabb0/734144d1-c88c-4371-9dcf-72dd5dfe058e
 interactive_railway_orchestrator = Orchestrator(
     test_runners={
         "c4c70f8a-679c-4044-a9d4-5e0ce0780a0f": TestRunnerc4c70f8a(
