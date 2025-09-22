@@ -102,13 +102,59 @@ def run_task(task_queue_name: str, submission_id: str, submission_data_url: str,
 
 @pytest.mark.usefixtures("test_containers_fixture")
 @pytest.mark.integration
-def test_railway():
+def test_runner_kpi_pf_026_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
   # TODO revert to latest once re-built
   submission_data_url = "ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
+  def _verify_kpi_pf_026(test_results):
+    assert len(test_results.body) == 1
+    test_results = test_results.body[0]
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "punctuality"
+    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[0].field_key == "punctuality"
+    assert test_results.scenario_scorings[1].scorings[0].score == 0
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
+    assert test_results.scorings[0].field_key == "punctuality"
+    assert test_results.scorings[0].score == -28
+
+  _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_pf_026)
+
+
+@pytest.mark.usefixtures("test_containers_fixture")
+@pytest.mark.integration
+def test_runner_kpi_nf_045_railway():
+  task_queue_name = 'Railway'  # Celery: queue name = task name
+  submission_id = str(uuid.uuid4())  # Celery: task ID
+  test_id = "e075d4a7-5cda-4d3c-83ac-69a0db1d74dd"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
+  # TODO revert to latest once re-built
+  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
+
+  def _verify_kpi_nf_045(test_results):
+    assert len(test_results.body) == 1
+    test_results = test_results.body[0]
+
+    # TODO test other keys as well
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
+    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[0].field_key == "network_impact_propagation"
+    assert test_results.scenario_scorings[1].scorings[0].score == 0
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
+    assert test_results.scorings[0].field_key == "network_impact_propagation"
+    assert test_results.scorings[0].score == -28
+
+  _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_nf_045)
+
+
+def _generic_run(submission_data_url, submission_id, task_queue_name, test_id, verify):
   try:
     run_task(task_queue_name, submission_id, submission_data_url, tests=[test_id])
 
@@ -125,19 +171,7 @@ def test_railway():
       test_ids=[test_id])
     print("results_uploaded")
     _pretty_print(test_results)
-    assert len(test_results.body) == 1
-    test_results = test_results.body[0]
-    assert test_results.scenario_scorings[0].scorings[0].field_key == "punctuality"
-    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
-    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
-    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[1].scorings[0].field_key == "punctuality"
-    assert test_results.scenario_scorings[1].scorings[0].score == 0
-    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
-    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
-
-    assert test_results.scorings[0].field_key == "punctuality"
-    assert test_results.scorings[0].score == -28
+    verify(test_results)
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])
