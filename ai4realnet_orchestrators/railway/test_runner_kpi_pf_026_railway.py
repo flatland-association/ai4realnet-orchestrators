@@ -74,8 +74,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
     logger.info(f"punctuality: {punctuality}")
 
     return {
-      # TODO rename to punctuality in scenario definitions?
-      'sum_normalized_reward': punctuality,
+      'punctuality': punctuality,
       'success_rate': success_rate
     }
 

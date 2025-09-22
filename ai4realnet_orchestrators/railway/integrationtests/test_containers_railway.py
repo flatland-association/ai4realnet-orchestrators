@@ -127,16 +127,16 @@ def test_railway():
     _pretty_print(test_results)
     assert len(test_results.body) == 1
     test_results = test_results.body[0]
-    assert test_results.scenario_scorings[0].scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "punctuality"
     assert test_results.scenario_scorings[0].scorings[0].score == -56.0
     assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
     assert test_results.scenario_scorings[0].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[1].scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scenario_scorings[1].scorings[0].field_key == "punctuality"
     assert test_results.scenario_scorings[1].scorings[0].score == 0
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
     assert test_results.scenario_scorings[1].scorings[1].score == 1.0
 
-    assert test_results.scorings[0].field_key == "sum_normalized_reward"
+    assert test_results.scorings[0].field_key == "punctuality"
     assert test_results.scorings[0].score == -28
 
   except BaseException as e:
