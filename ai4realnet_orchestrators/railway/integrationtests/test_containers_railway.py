@@ -106,7 +106,7 @@ def test_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
-  # TODO revert to latest
+  # TODO revert to latest once re-built
   submission_data_url = "ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   try:
@@ -136,10 +136,8 @@ def test_railway():
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
     assert test_results.scenario_scorings[1].scorings[1].score == 1.0
 
-    # TODO only first two scenarios run - run all or use separate test_id for integration testing?
     assert test_results.scorings[0].field_key == "sum_normalized_reward"
-    assert test_results.scorings[0].score is None
-    # TODO add secondary score at test level
+    assert test_results.scorings[0].score == -28
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])
