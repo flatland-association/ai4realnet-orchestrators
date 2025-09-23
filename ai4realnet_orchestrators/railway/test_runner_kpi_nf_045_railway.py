@@ -45,12 +45,22 @@ class TestRunner_KPI_NF_045_Railway(TestRunner):
       # for integration tests with localhost http
       "-e", "OAUTHLIB_INSECURE_TRANSPORT=1",
       self.submission_data_url,
-      # TODO hard-coded dependency on flatland-baselines
+      # TODO get rid of hard-coded path in flatland-baselines
       "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
       "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
+      # TODO use different image for different baselines or encode in submission_data_url?
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
       "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
-      "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
+      # TODO implement two scenarios
+      # "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
+      "--malfunction_duration_min", "0",
+      "--malfunction_duration_max", "0",
+      "--malfunction_interval", "9999999999999",
+      # "--effects-generator-pkg", "flatland.envs.malfunction_effects_generators", "--effects-generator-cls", "ConditionalMalfunctionEffectsGenerator",
+      # "--effects-generator-kwargs", "max_num_malfunctions", "1",
+      # "--effects-generator-kwargs", "min_duration", "25",
+      # "--effects-generator-kwargs", "max_duration", "25",
+      # "--effects-generator-kwargs", "malfunction_rate", "1.0",
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
     ]
@@ -74,7 +84,6 @@ class TestRunner_KPI_NF_045_Railway(TestRunner):
 
     return {
       'network_impact_propagation': rewards,
-      # TODO run the two scenarios.
       'success_rate_1': success_rate,
       'punctuality_1': success_rate,
       'success_rate_2': success_rate,

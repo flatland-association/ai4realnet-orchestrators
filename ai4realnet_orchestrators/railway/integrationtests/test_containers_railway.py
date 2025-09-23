@@ -113,15 +113,15 @@ def test_runner_kpi_pf_026_railway():
     assert len(test_results.body) == 1
     test_results = test_results.body[0]
     assert test_results.scenario_scorings[0].scorings[0].field_key == "punctuality"
-    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
+    assert test_results.scenario_scorings[0].scorings[0].score == 0.9285714285714286
     assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
     assert test_results.scenario_scorings[0].scorings[1].score == 1.0
     assert test_results.scenario_scorings[1].scorings[0].field_key == "punctuality"
-    assert test_results.scenario_scorings[1].scorings[0].score == 0
+    assert test_results.scenario_scorings[1].scorings[0].score == 1.0
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
     assert test_results.scenario_scorings[1].scorings[1].score == 1.0
     assert test_results.scorings[0].field_key == "punctuality"
-    assert test_results.scorings[0].score == -28
+    assert test_results.scorings[0].score == 0.9642857142857143
 
   _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_pf_026)
 

@@ -1,6 +1,8 @@
+import ast
 import logging
 import os
 
+import numpy as np
 import pandas as pd
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
@@ -45,7 +47,7 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
       # for integration tests with localhost http
       "-e", "OAUTHLIB_INSECURE_TRANSPORT=1",
       self.submission_data_url,
-      # TODO hard-coded dependency on flatland-baselines
+      # TODO get rid of hard-coded path in flatland-baselines
       "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
       "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
@@ -69,9 +71,16 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
       f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
       sep="\t")
     logger.info(f"trains dones infos: {df_trains_rewards_dones_infos}")
-    # TODO assert only one element
-    punctuality = df_trains_rewards_dones_infos["reward"].sum()
+    num_agents = df_trains_rewards_dones_infos["agent_id"].max() + 1
+    logger.info(f"num_agents: {num_agents}")
+
+    agent_scores = df_trains_rewards_dones_infos["reward"].tail(num_agents).map(ast.literal_eval).to_list()
+    logger.info(f"agent_scores: {agent_scores}")
+    punctuality = mean_punctuality_aggregator(agent_scores)
     logger.info(f"punctuality: {punctuality}")
+
+    # TODO upload trajectory to s3
+
 
     return {
       'punctuality': punctuality,
@@ -232,3 +241,9 @@ class TestRunner_KPI_PF_026_Railway(TestRunner):
       "b59c4643-2b45-45e4-89f7-007ef1955c9f": "Test_14/Level_8.pkl",
       "f56f6f85-9aff-4f4e-bd84-8d763708e76f": "Test_14/Level_9.pkl"
     }[scenario_id]
+
+
+def mean_punctuality_aggregator(scores):
+  data = np.array(scores).transpose()
+  scenario_punctuality = data[0] / data[1]
+  return np.mean(scenario_punctuality)
