@@ -1,14 +1,13 @@
+import ast
 import logging
 import os
+from collections import defaultdict
 
-import pandas as pd
+import numpy as np
+from flatland.envs.step_utils.states import TrainState
+from flatland.trajectories.trajectories import Trajectory
 
 from ai4realnet_orchestrators.railway.abstract_test_runner_railway import AbtractTestRunnerRailway
-
-# required only for docker in docker
-DATA_VOLUME = os.environ.get("DATA_VOLUME")
-SCENARIOS_VOLUME = os.environ.get("SCENARIOS_VOLUME")
-SUDO = os.environ.get("SUDO", "true").lower() == "true"
 
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
@@ -24,49 +23,112 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     # here you would implement the logic to run the test for the scenario
     # data and other stuff initialized in the init method can be used here
     # for demonstration, we return a dummy result
-
-    generate_policy_args = [
-      "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
+    data_dir_no_malfunction = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/no_malfunction"
+    generate_policy_args_no_malfunction = [
+      "--data-dir", data_dir_no_malfunction,
       # TODO use different image for different baselines or encode in submission_data_url?
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
       "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
-      # TODO implement two scenarios
-      # "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
+      "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
       "--malfunction_interval", "-1",
       "--effects-generator-pkg", "flatland.core.effects_generator", "--effects-generator-cls", "EffectsGenerator",
-      # "--effects-generator-pkg", "flatland.envs.malfunction_effects_generators", "--effects-generator-cls", "ConditionalMalfunctionEffectsGenerator",
-      # "--effects-generator-kwargs", "max_num_malfunctions", "1",
-      # "--effects-generator-kwargs", "min_duration", "25",
-      # "--effects-generator-kwargs", "max_duration", "25",
-      # "--effects-generator-kwargs", "malfunction_rate", "1.0",
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
     ]
-    self.exec(generate_policy_args, scenario_id, submission_id)
+    self.exec(generate_policy_args_no_malfunction, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}/no_malfunction")
 
-    df_trains_arrived = pd.read_csv(
-      f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      sep="\t")
-    print(df_trains_arrived)
-    assert len(df_trains_arrived) == 1
-    print(df_trains_arrived.iloc[0])
-    success_rate = df_trains_arrived.iloc[0]["success_rate"]
-    print(success_rate)
+    data_dir_with_malfunction = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/with_malfunction"
+    generate_policy_args_one_malfunction = [
+      "--data-dir", data_dir_with_malfunction,
+      "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls",
+      "DeadLockAvoidancePolicy",
+      "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls",
+      "FullEnvObservation",
+      "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
+      # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
+      "--malfunction_interval", "-1",
+      "--effects-generator-pkg", "flatland.envs.malfunction_effects_generators", "--effects-generator-cls",
+      "ConditionalMalfunctionEffectsGenerator",
+      "--effects-generator-kwargs", "earliest_malfunction", f"{earliest_malfunction}",
+      "--effects-generator-kwargs", "max_num_malfunctions", "1",
+      "--effects-generator-kwargs", "min_duration", "20",
+      "--effects-generator-kwargs", "max_duration", "50",
+      "--effects-generator-kwargs", "malfunction_rate", "1.0",
+      "--effects-generator-kwargs", "condition_pkg", "flatland.envs.malfunction_effects_generators",
+      "--effects-generator-kwargs", "condition_cls", "on_map_state_condition",
+      "--ep-id", scenario_id,
+      "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
+    ]
+    self.exec(generate_policy_args_one_malfunction, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}/with_malfunction")
 
-    df_trains_rewards_dones_Infos = pd.read_csv(
-      f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-      sep="\t")
-    print(df_trains_rewards_dones_Infos)
-    rewards = df_trains_rewards_dones_Infos["reward"].sum()
-    print(rewards)
+    # no malfunction
+    trajectory_no_malfunction = Trajectory(data_dir=data_dir_no_malfunction, ep_id=scenario_id)
+    trajectory_no_malfunction.load()
+    num_agents = trajectory_no_malfunction.trains_rewards_dones_infos["agent_id"].max() + 1
+    for _, r in trajectory_no_malfunction.trains_rewards_dones_infos.iterrows():
+      assert r["info"]["malfunction"] == 0
+    tail_no_malfunction = trajectory_no_malfunction.trains_rewards_dones_infos.tail(num_agents)
+    assert tail_no_malfunction["done"].values.sum() == num_agents
+    logger.info(f"tail_no_malfunction.reward {tail_no_malfunction["reward"].to_list()}")
+    punctuality_tuples_no_malfunction = [ast.literal_eval(r) if isinstance(r, str) else r for r in tail_no_malfunction["reward"].to_list()]
+    logger.info(f"punctuality_tuples_no_malfunction {punctuality_tuples_no_malfunction}")
+
+    betroffen1 = [num_punctual != num_waypoints for num_punctual, num_waypoints in punctuality_tuples_no_malfunction]
+    num_betroffen1 = np.sum(betroffen1)
+    logger.info(f"num_betroffen1 {num_betroffen1}")
+
+    trajectory_with_malfunction = Trajectory(data_dir=data_dir_with_malfunction, ep_id=scenario_id)
+    trajectory_with_malfunction.load()
+    malfunction_agents = defaultdict(list)
+    for _, r in trajectory_with_malfunction.trains_rewards_dones_infos.iterrows():
+      if r["info"]["malfunction"] > 0:
+        malfunction_agents[r["agent_id"]].append(r["info"]["malfunction"])
+    assert len(malfunction_agents.keys()) == 1
+    assert list(malfunction_agents.values())[0][0] >= 20
+    assert list(malfunction_agents.values())[0][0] <= 50
+    logger.info(f"malfunction_agents {malfunction_agents}")
+
+    # with malfunction
+    tail_with_malfunction = trajectory_with_malfunction.trains_rewards_dones_infos.tail(num_agents)
+    logger.info(f"tail_with_malfunction.reward {tail_with_malfunction["reward"].to_list()}")
+    assert tail_with_malfunction["done"].values.sum() == num_agents
+    punctuality_tuples_with_malfunction = [ast.literal_eval(r) if isinstance(r, str) else r for r in tail_with_malfunction["reward"].to_list()]
+    logger.info(f"punctuality_tuples_with_malfunction {punctuality_tuples_with_malfunction}")
+
+    malfunction_states = set()
+    for _, r in trajectory_with_malfunction.trains_rewards_dones_infos.iterrows():
+      if r["info"]["malfunction"] > 0:
+        malfunction_states.add(TrainState(r["info"]["state"]).name)
+    logger.info(f"malfunction_states {malfunction_states}")
+    assert len(malfunction_states) == 1
+
+    betroffen2 = [num_punctual != num_waypoints for num_punctual, num_waypoints in punctuality_tuples_with_malfunction]
+    num_betroffen2 = np.sum(betroffen2)
+    logger.info(f"num_betroffen2 {num_betroffen2}")
+    nip = 1 - ((num_betroffen2 - num_betroffen1) / num_agents)
+    logger.info(f"network impact propagation {nip} = (1 - ({num_betroffen2}-{num_betroffen1}) / {num_agents})")
+
+    assert nip >= 0
+    assert nip <= 1
+
+    success_rate_1 = trajectory_no_malfunction.trains_arrived.iloc[0]["success_rate"]
+    logger.info(f"success rate no malfunction: {success_rate_1}")
+    success_rate_2 = trajectory_with_malfunction.trains_arrived.iloc[0]["success_rate"]
+    logger.info(f"success rate no malfunction: {success_rate_2}")
+
+    punctuality_1 = mean_punctuality_aggregator(punctuality_tuples_with_malfunction)
+    logger.info(f"punctuality no malfunction: {punctuality_1}")
+
+    punctuality_2 = mean_punctuality_aggregator(punctuality_tuples_with_malfunction)
+    logger.info(f"punctuality no malfunction: {punctuality_2}")
 
     return {
-      'network_impact_propagation': rewards,
-      'success_rate_1': success_rate,
-      'punctuality_1': success_rate,
-      'success_rate_2': success_rate,
-      'punctuality_2': success_rate,
+      'network_impact_propagation': nip,
+      'success_rate_1': success_rate_1,
+      'punctuality_1': punctuality_1,
+      'success_rate_2': success_rate_2,
+      'punctuality_2': punctuality_2,
     }
 
   @staticmethod
@@ -222,6 +284,12 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "90071fa0-a560-4c6e-b2ff-fd59588fbdb7": ["Test_14/Level_7.pkl", 272],
       "97bbc19c-de0c-4deb-838d-5675d9525eb8": ["Test_14/Level_8.pkl", 258],
     }[scenario_id]
+
+
+def mean_punctuality_aggregator(scores):
+  data = np.array(scores).transpose()
+  scenario_punctuality = data[0] / data[1]
+  return np.mean(scenario_punctuality)
 
 
 def gen_earlieast_malfunction_snippet():

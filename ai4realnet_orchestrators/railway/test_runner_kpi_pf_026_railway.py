@@ -7,10 +7,6 @@ import pandas as pd
 
 from ai4realnet_orchestrators.railway.abstract_test_runner_railway import AbtractTestRunnerRailway
 
-# required only for docker in docker
-DATA_VOLUME = os.environ.get("DATA_VOLUME")
-SCENARIOS_VOLUME = os.environ.get("SCENARIOS_VOLUME")
-
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
 
@@ -34,7 +30,7 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
     ]
-    self.exec(generate_policy_args, scenario_id, submission_id)
+    self.exec(generate_policy_args, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}")
 
     df_trains_arrived = pd.read_csv(
       f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv",

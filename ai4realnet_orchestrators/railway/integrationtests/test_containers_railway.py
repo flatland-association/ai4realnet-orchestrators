@@ -139,17 +139,29 @@ def test_runner_kpi_nf_045_railway():
     assert len(test_results.body) == 1
     test_results = test_results.body[0]
 
-    # TODO test other keys as well
     assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[0].scorings[0].score == -56.0
+    assert test_results.scenario_scorings[0].scorings[0].score == 0.8571428571428572
     assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
     assert test_results.scenario_scorings[0].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[1].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[1].scorings[0].score == 0
+    assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[0].scorings[2].score == 0.8571428571428571
+    assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[0].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[0].scorings[4].score == 0.8571428571428571
+
+    assert test_results.scenario_scorings[1].scorings[0].score == 1
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
     assert test_results.scenario_scorings[1].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[1].scorings[2].score == 1
+    assert test_results.scenario_scorings[1].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[1].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[1].scorings[4].score == 1
+
     assert test_results.scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scorings[0].score == -28
+    assert test_results.scorings[0].score == 0.9285714285714286
 
   _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_nf_045)
 

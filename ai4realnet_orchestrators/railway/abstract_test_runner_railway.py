@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 from typing import List
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
@@ -12,13 +13,14 @@ SUDO = os.environ.get("SUDO", "true").lower() == "true"
 
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
+RAILWAY_ORCHESTRATOR_RUN_LOCAL = os.environ.get("RAILWAY_ORCHESTRATOR_RUN_LOCAL", False)
 
 
 class AbtractTestRunnerRailway(TestRunner):
-  def exec(self, generate_policy_args: List[str], scenario_id: str, submission_id: str):
-    if True:
+  def exec(self, generate_policy_args: List[str], scenario_id: str, submission_id: str, subdir: str):
+    if not RAILWAY_ORCHESTRATOR_RUN_LOCAL:
       # --data-dir must exist -- TODO fix in flatland-rl instead
-      args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
+      args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{subdir}"]
       exec_with_logging(args if not SUDO else ["sudo"] + args)
       args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
               f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
@@ -41,4 +43,12 @@ class AbtractTestRunnerRailway(TestRunner):
              ] + generate_policy_args
       exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
     else:
-      generate_trajectory_from_policy(generate_policy_args)
+      from flatland.trajectories.policy_runner import generate_trajectory_from_policy
+      Path(f"{DATA_VOLUME_MOUNTPATH}/{subdir}").mkdir(parents=True, exist_ok=False)
+      try:
+        print(subdir)
+        generate_trajectory_from_policy(generate_policy_args)
+      except SystemExit as e_info:
+        if e_info.code != 0:
+          print(e_info)
+        assert e_info.code == 0

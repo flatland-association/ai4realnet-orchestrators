@@ -1,3 +1,4 @@
 # additional requirements for railway test runner
 pandas
-flatland-rl
+# TODO revert after release
+git+https://github.com/flatland-association/flatland-rl.git@fix-policy-runner-obs-builder
