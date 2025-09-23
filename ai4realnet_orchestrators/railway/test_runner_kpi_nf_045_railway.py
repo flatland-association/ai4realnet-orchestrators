@@ -3,8 +3,7 @@ import os
 
 import pandas as pd
 
-from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
-from ai4realnet_orchestrators.test_runner import TestRunner
+from ai4realnet_orchestrators.railway.abstract_test_runner_railway import AbtractTestRunnerRailway
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 # KPI-NF-045: Network Impact Propagation (Railway)
-class TestRunner_KPI_NF_045_Railway(TestRunner):
+class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
 
   def run_scenario(self, scenario_id: str, submission_id: str):
     env_path, earliest_malfunction = TestRunner_KPI_NF_045_Railway.load_scenario_data(scenario_id)
@@ -26,27 +25,7 @@ class TestRunner_KPI_NF_045_Railway(TestRunner):
     # data and other stuff initialized in the init method can be used here
     # for demonstration, we return a dummy result
 
-    # --data-dir must exist -- TODO fix in flatland-rl instead
-    args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
-    exec_with_logging(args if not SUDO else ["sudo"] + args)
-    args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
-            f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
-    exec_with_logging(args if not SUDO else ["sudo"] + args)
-    args = [
-      "docker", "run",
-      "--rm",
-      "-v", f"{DATA_VOLUME}:{DATA_VOLUME_MOUNTPATH}",
-      "-v", f"{SCENARIOS_VOLUME}:{SCENARIOS_VOLUME_MOUNTPATH}",
-      "--entrypoint", "/bin/bash",
-      # Don't allow subprocesses to raise privileges, see https://github.com/codalab/codabench/blob/43e01d4bc3de26e8339ddb1463eef7d960ddb3af/compute_worker/compute_worker.py#L520
-      "--security-opt=no-new-privileges",
-      # Don't buffer python output, so we don't lose any
-      "-e", "PYTHONUNBUFFERED=1",
-      # for integration tests with localhost http
-      "-e", "OAUTHLIB_INSECURE_TRANSPORT=1",
-      self.submission_data_url,
-      # TODO get rid of hard-coded path in flatland-baselines
-      "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
+    generate_policy_args = [
       "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
       # TODO use different image for different baselines or encode in submission_data_url?
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
@@ -64,7 +43,7 @@ class TestRunner_KPI_NF_045_Railway(TestRunner):
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
     ]
-    exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
+    self.exec(generate_policy_args, scenario_id, submission_id)
 
     df_trains_arrived = pd.read_csv(
       f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv",
