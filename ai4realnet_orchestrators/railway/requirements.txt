@@ -1,3 +1,4 @@
 # additional requirements for railway test runner
 pandas
-flatland-rl
+# TODO use versioned dependency instead of branch
+git+https://github.com/flatland-association/flatland-rl.git@main

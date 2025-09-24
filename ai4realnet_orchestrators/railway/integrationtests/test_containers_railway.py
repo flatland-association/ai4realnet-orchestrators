@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import ssl
@@ -101,12 +102,71 @@ def run_task(task_queue_name: str, submission_id: str, submission_data_url: str,
 
 @pytest.mark.usefixtures("test_containers_fixture")
 @pytest.mark.integration
-def test_railway():
+def test_runner_kpi_pf_026_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
+  # TODO use versioned dependency instead of latest
   submission_data_url = "ghcr.io/flatland-association/flatland-baselines:latest"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
+  def _verify_kpi_pf_026(test_results):
+    assert len(test_results.body) == 1
+    test_results = test_results.body[0]
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "punctuality"
+    assert test_results.scenario_scorings[0].scorings[0].score == 0.9285714285714286
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[0].field_key == "punctuality"
+    assert test_results.scenario_scorings[1].scorings[0].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate"
+    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
+    assert test_results.scorings[0].field_key == "punctuality"
+    assert test_results.scorings[0].score == 0.9642857142857143
+
+  _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_pf_026)
+
+
+@pytest.mark.usefixtures("test_containers_fixture")
+@pytest.mark.integration
+def test_runner_kpi_nf_045_railway():
+  task_queue_name = 'Railway'  # Celery: queue name = task name
+  submission_id = str(uuid.uuid4())  # Celery: task ID
+  test_id = "e075d4a7-5cda-4d3c-83ac-69a0db1d74dd"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
+  # TODO revert to latest once re-built
+  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:latest"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
+
+  def _verify_kpi_nf_045(test_results):
+    assert len(test_results.body) == 1
+    test_results = test_results.body[0]
+
+    assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
+    assert test_results.scenario_scorings[0].scorings[0].score == 0.8571428571428572
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[0].scorings[2].score == 0.8571428571428571
+    assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[0].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[0].scorings[4].score == 0.8571428571428571
+
+    assert test_results.scenario_scorings[1].scorings[0].score == 1
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[1].scorings[2].score == 1
+    assert test_results.scenario_scorings[1].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[1].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[1].scorings[4].score == 1
+
+    assert test_results.scorings[0].field_key == "network_impact_propagation"
+    assert test_results.scorings[0].score == 0.9285714285714286
+
+  _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_nf_045)
+
+
+def _generic_run(submission_data_url, submission_id, task_queue_name, test_id, verify):
   try:
     run_task(task_queue_name, submission_id, submission_data_url, tests=[test_id])
 
@@ -122,23 +182,8 @@ def test_railway():
       submission_id=submission_id,
       test_ids=[test_id])
     print("results_uploaded")
-    print(test_results)
-    assert test_results.body[0].scenario_scorings[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scenario_scorings[0].scorings[0].score == -800
-    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 add secondary key and second scenario again
-    # assert test_results.body[0].scenario_scorings[0].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scenario_scorings[0].scorings[1].score == 0.4285714285714285
-    # assert test_results.body[0].scenario_scorings[1].scorings[0].field_key == "primary"
-    # assert test_results.body[0].scenario_scorings[1].scorings[0].score == -28.0
-    # assert test_results.body[0].scenario_scorings[1].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scenario_scorings[1].scorings[1].score == 1.0
-
-    # TODO https://github.com/flatland-association/flatland-benchmarks/issues/248 dd secondary key and second scenario again
-    assert test_results.body[0].scorings[0].field_key == "primary"
-    assert test_results.body[0].scorings[0].score == -800.0
-    # assert test_results.body[0].scorings[0].score == -828.0
-    # assert test_results.body[0].scorings[1].field_key == "secondary"
-    # assert test_results.body[0].scorings[1].score == 0.7142857142857142
+    _pretty_print(test_results)
+    verify(test_results)
 
   except BaseException as e:
     exec_with_logging(["docker", "ps"])
@@ -183,3 +228,16 @@ def log_subprocess_output(pipe, level=logging.DEBUG, label="", collect: bool = F
   if collect:
     return s
   return None
+
+
+# https://stackoverflow.com/questions/36588126/uuid-is-not-json-serializable
+class UUIDEncoder(json.JSONEncoder):
+  def default(self, obj):
+    if isinstance(obj, uuid.UUID):
+      # if the obj is uuid, we simply return the value of uuid
+      return obj.hex
+    return json.JSONEncoder.default(self, obj)
+
+
+def _pretty_print(submissions):
+  print(json.dumps(submissions.to_dict(), indent=4, cls=UUIDEncoder))
