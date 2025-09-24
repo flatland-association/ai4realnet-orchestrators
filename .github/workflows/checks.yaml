@@ -2,7 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: ai4relanet-vc1-railway-kpis
+  flatland-benchmarks-ref: main
 
 on:
   workflow_dispatch:

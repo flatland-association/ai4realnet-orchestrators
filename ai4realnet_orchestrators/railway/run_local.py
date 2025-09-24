@@ -18,8 +18,8 @@ def run_local(
   submission_id = uuid.uuid4()
 
   print(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{test_id}/")
-  # TODO revert to latest once re-built
-  test_runner.init(submission_data_url="ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder", submission_id=submission_id)
+  # TODO use versioned dependency instead of latest
+  test_runner.init(submission_data_url="ghcr.io/flatland-association/flatland-baselines:latest", submission_id=submission_id)
   test_runner.run()
 
 

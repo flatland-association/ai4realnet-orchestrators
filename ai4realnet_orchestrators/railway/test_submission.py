@@ -40,8 +40,8 @@ def test_submit(
     SubmissionsPostRequest(
       benchmark_id=benchmark_id,
       name=submission_name,
-      # TODO revert to latest once re-built
-      submission_data_url="ghcr.io/flatland-association/flatland-baselines:fix-policy-runner-obs-builder",
+      # TODO use versioned dependency instead of latest
+      submission_data_url="ghcr.io/flatland-association/flatland-baselines:latest",
       test_ids=[test_id])
   )
 
