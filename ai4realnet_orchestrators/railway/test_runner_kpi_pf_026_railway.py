@@ -1,9 +1,8 @@
-import ast
 import logging
 import os
 
 import numpy as np
-import pandas as pd
+from flatland.trajectories.trajectories import Trajectory
 
 from ai4realnet_orchestrators.railway.abstract_test_runner_railway import AbtractTestRunnerRailway
 
@@ -22,8 +21,9 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
     # data and other stuff initialized in the init method can be used here
     # for demonstration, we return a dummy result
 
+    data_dir = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}"
     generate_policy_args = [
-      "--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}",
+      "--data-dir", data_dir,
       "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
       "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
@@ -32,23 +32,22 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
     ]
     self.exec(generate_policy_args, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}")
 
-    df_trains_arrived = pd.read_csv(
-      f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      sep="\t")
+    trajectory = Trajectory(data_dir=data_dir, ep_id=scenario_id)
+    trajectory.load()
+
+    df_trains_arrived = trajectory.trains_arrived
     logger.info(f"trains arrived: {df_trains_arrived}")
     assert len(df_trains_arrived) == 1
     logger.info(f"trains arrived: {df_trains_arrived.iloc[0]}")
     success_rate = df_trains_arrived.iloc[0]["success_rate"]
     logger.info(f"success rate: {success_rate}")
 
-    df_trains_rewards_dones_infos = pd.read_csv(
-      f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-      sep="\t")
-    logger.info(f"trains dones infos: {df_trains_rewards_dones_infos}")
+    df_trains_rewards_dones_infos = trajectory.trains_rewards_dones_infos
+    logger.info(f"trains dones infos: {trajectory.trains_rewards_dones_infos}")
     num_agents = df_trains_rewards_dones_infos["agent_id"].max() + 1
     logger.info(f"num_agents: {num_agents}")
 
-    agent_scores = df_trains_rewards_dones_infos["reward"].tail(num_agents).map(ast.literal_eval).to_list()
+    agent_scores = df_trains_rewards_dones_infos["reward"].to_list()
     logger.info(f"agent_scores: {agent_scores}")
     punctuality = mean_punctuality_aggregator(agent_scores)
     logger.info(f"punctuality: {punctuality}")
@@ -218,5 +217,8 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
 
 def mean_punctuality_aggregator(scores):
   data = np.array(scores).transpose()
-  scenario_punctuality = data[0] / data[1]
+  # step rewards are (0,0), only take episode rewards with >0 agents in the second column:
+  n_stops_on_time = data[0][data[1] > 0]
+  n_stops = data[1][data[1] > 0]
+  scenario_punctuality = np.divide(n_stops_on_time, n_stops)
   return np.mean(scenario_punctuality)
