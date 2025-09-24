@@ -1,33 +1,23 @@
+import os
+import pathlib
+import pandas as pd
+
+from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
 from ai4realnet_orchestrators.test_runner import TestRunner
 
-
-def load_submission_data(submission_data_url: str):
-    raise NotImplementedError()
+WORKDIR = os.environ.get("WORKDIR", "/data")
 
 
-def load_model(submission_data):
-    raise NotImplementedError()
-
-
-def load_scenario_data(scenario_id: str):
-    raise NotImplementedError()
-
-
-class YourTestRunner(TestRunner):
-
-    def init(self, submission_data_url: str):
-        super().init(submission_data_url=submission_data_url)
-        submission_data = load_submission_data(submission_data_url)
-        self.model = load_model(submission_data)
-
+class BlueSkyRunner(TestRunner):
     def run_scenario(self, scenario_id: str, submission_id: str):
         # here you would implement the logic to run the test for the scenario:
-        scenario_data = load_scenario_data(scenario_id)
-        model = self.model
-
-        # data and other stuff initialized in the init method can be used here
-        # for demonstration, we return a dummy result
+        args = ["bluesky", "--detached", "--workdir", WORKDIR, "--scenfile", scenario_id]
+        exec_with_logging(args)
+        
+        # Read the generated data file
+        files = list(pathlib.Path(WORKDIR).glob("*.csv"))
+        latest = max(files, key=os.path.getctime)
+        data = pd.read_csv(latest, comment="#")
         return {
-            "key_1": "value_1",
-            "key_2": "value_2",
+            "output": data,
         }
