@@ -25,6 +25,10 @@ class AbtractTestRunnerRailway(TestRunner):
       args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
               f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
       exec_with_logging(args if not SUDO else ["sudo"] + args)
+
+      # update image
+      args = ["docker", "pull", self.submission_data_url, ]
+      exec_with_logging(args if not SUDO else ["sudo"] + args)
       args = [
                "docker", "run",
                "--rm",
