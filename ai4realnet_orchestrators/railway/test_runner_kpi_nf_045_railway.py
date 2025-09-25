@@ -58,7 +58,8 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "--effects-generator-kwargs", "condition_pkg", "flatland.envs.malfunction_effects_generators",
       "--effects-generator-kwargs", "condition_cls", "on_map_state_condition",
       "--ep-id", scenario_id,
-      "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
+      "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}",
+      "--snapshot-interval", "10",
     ]
     self.exec(generate_policy_args_one_malfunction, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}/with_malfunction")
 
