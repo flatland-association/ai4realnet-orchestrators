@@ -106,8 +106,9 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     betroffen2 = [num_punctual != num_waypoints for num_punctual, num_waypoints in punctuality_tuples_with_malfunction]
     num_betroffen2 = np.sum(betroffen2)
     logger.info(f"num_betroffen2 {num_betroffen2}")
-    nip = 1 - ((num_betroffen2 - num_betroffen1) / num_agents)
-    logger.info(f"network impact propagation {nip} = (1 - ({num_betroffen2}-{num_betroffen1}) / {num_agents})")
+    unclipped = 1 - ((num_betroffen2 - num_betroffen1) / num_agents)
+    nip = np.clip(unclipped, 0, 1)
+    logger.info(f"network impact propagation {nip} np.clip({unclipped}, 0, 1) = np.clip(1 - ({num_betroffen2}-{num_betroffen1}) / {num_agents}, 0, 1)")
 
     assert nip >= 0
     assert nip <= 1
