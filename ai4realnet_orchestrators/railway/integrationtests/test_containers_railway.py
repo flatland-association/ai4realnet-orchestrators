@@ -175,7 +175,7 @@ def test_runner_kpi_nf_045_railway():
 
   _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_nf_045)
 
-  s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://minio:9000")
+  s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://localhost:9000")
   for scenario_id in ['bb6302f1-0dc2-43ed-976b-4e5d3126006a', 'f84dcf0c-4bde-460b-9139-ea76e3694267']:
     listing = s3.list_objects_v2(
       Bucket='fab-demo-results',
