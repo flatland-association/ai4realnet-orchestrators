@@ -5,9 +5,8 @@ from pathlib import Path
 from typing import List
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
-from ai4realnet_orchestrators.s3_utils import s3_utils
+from ai4realnet_orchestrators.s3_utils import s3_utils, S3_BUCKET
 from ai4realnet_orchestrators.test_runner import TestRunner
-from orchestrator import S3_BUCKET
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")
