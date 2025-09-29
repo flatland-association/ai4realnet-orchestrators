@@ -125,6 +125,8 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     punctuality_2 = mean_punctuality_aggregator(punctuality_tuples_with_malfunction)
     logger.info(f"punctuality no malfunction: {punctuality_2}")
 
+    self.upload_and_empty_local(submission_id=submission_id, scenario_id=scenario_id)
+
     return {
       'network_impact_propagation': nip,
       'success_rate_1': success_rate_1,

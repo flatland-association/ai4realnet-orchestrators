@@ -1,11 +1,13 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 from typing import List
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
 from ai4realnet_orchestrators.s3_utils import s3_utils
 from ai4realnet_orchestrators.test_runner import TestRunner
+from orchestrator import S3_BUCKET
 
 # required only for docker in docker
 DATA_VOLUME = os.environ.get("DATA_VOLUME")
@@ -15,6 +17,8 @@ SUDO = os.environ.get("SUDO", "true").lower() == "true"
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
 RAILWAY_ORCHESTRATOR_RUN_LOCAL = os.environ.get("RAILWAY_ORCHESTRATOR_RUN_LOCAL", False)
+
+logger = logging.getLogger(__name__)
 
 
 class AbtractTestRunnerRailway(TestRunner):
@@ -61,5 +65,9 @@ class AbtractTestRunnerRailway(TestRunner):
 
   def upload_and_empty_local(self, submission_id: str, scenario_id: str):
     data_volume = Path(DATA_VOLUME)
-    for f in data_volume / submission_id / self.test_id / scenario_id.rglob("**/*"):
+    scenario_folder = data_volume / submission_id / self.test_id / scenario_id
+    logger.info(f"Uploading {scenario_folder} to s3 {S3_BUCKET}/{scenario_folder.relative_to(data_volume)}")
+    for f in scenario_folder.rglob("**/*"):
       s3_utils.upload_to_s3(f, f.relative_to(data_volume))
+    logger.info(f"Deleting {scenario_folder} after uploading s3 {S3_BUCKET}/{scenario_folder.relative_to(data_volume)}")
+    shutil.rmtree(scenario_folder)
