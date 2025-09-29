@@ -63,7 +63,7 @@ class AbtractTestRunnerRailway(TestRunner):
         assert e_info.code == 0
 
   def upload_and_empty_local(self, submission_id: str, scenario_id: str):
-    data_volume = Path(DATA_VOLUME)
+    data_volume = Path(DATA_VOLUME_MOUNTPATH)
     scenario_folder = data_volume / submission_id / self.test_id / scenario_id
     logger.info(f"Uploading {scenario_folder} to s3 {S3_BUCKET}/{scenario_folder.relative_to(data_volume)}")
     for f in scenario_folder.rglob("**/*"):
