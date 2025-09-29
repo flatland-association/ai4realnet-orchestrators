@@ -53,7 +53,7 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
     punctuality = mean_punctuality_aggregator(agent_scores)
     logger.info(f"punctuality: {punctuality}")
 
-    # TODO upload trajectory to s3
+    self.upload_and_empty_local(submission_id=submission_id, scenario_id=scenario_id)
 
     return {
       'punctuality': punctuality,

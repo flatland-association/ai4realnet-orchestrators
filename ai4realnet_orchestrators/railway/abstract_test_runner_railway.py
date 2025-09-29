@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import List
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
+from ai4realnet_orchestrators.s3_utils import s3_utils
 from ai4realnet_orchestrators.test_runner import TestRunner
 
 # required only for docker in docker
@@ -51,8 +52,14 @@ class AbtractTestRunnerRailway(TestRunner):
       Path(f"{DATA_VOLUME_MOUNTPATH}/{subdir}").mkdir(parents=True, exist_ok=False)
       try:
         print(subdir)
+        print(generate_policy_args)
         generate_trajectory_from_policy(generate_policy_args)
       except SystemExit as e_info:
         if e_info.code != 0:
           print(e_info)
         assert e_info.code == 0
+
+  def upload_and_empty_local(self, submission_id: str, scenario_id: str):
+    data_volume = Path(DATA_VOLUME)
+    for f in data_volume / submission_id / self.test_id / scenario_id.rglob("**/*"):
+      s3_utils.upload_to_s3(f, f.relative_to(data_volume))
