@@ -13,6 +13,7 @@ from celery import Celery
 from testcontainers.compose import DockerCompose
 
 from ai4realnet_orchestrators.fab_oauth_utils import backend_application_flow
+from ai4realnet_orchestrators.s3_utils import s3_utils
 from fab_clientlib import DefaultApi, Configuration, ApiClient
 
 logger = logging.getLogger(__name__)
@@ -125,6 +126,15 @@ def test_runner_kpi_pf_026_railway():
 
   _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_pf_026)
 
+  s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://minio:9000")
+  for scenario_id in ['5a60713d-01f2-4d32-9867-21904629e254', '0db72a40-43e8-477b-89b3-a7bd1224660a']:
+    listing = s3.list_objects_v2(
+      Bucket='fab-demo-results',
+      Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}',
+    )
+    print(listing)
+    assert len(listing["Contents"]) > 0
+
 
 @pytest.mark.usefixtures("test_containers_fixture")
 @pytest.mark.integration
@@ -164,6 +174,15 @@ def test_runner_kpi_nf_045_railway():
     assert test_results.scorings[0].score == 0.9285714285714286
 
   _generic_run(submission_data_url, submission_id, task_queue_name, test_id, _verify_kpi_nf_045)
+
+  s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://minio:9000")
+  for scenario_id in ['bb6302f1-0dc2-43ed-976b-4e5d3126006a', 'f84dcf0c-4bde-460b-9139-ea76e3694267']:
+    listing = s3.list_objects_v2(
+      Bucket='fab-demo-results',
+      Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}',
+    )
+    print(listing)
+    assert len(listing["Contents"]) > 0
 
 
 def _generic_run(submission_data_url, submission_id, task_queue_name, test_id, verify):

@@ -8,7 +8,7 @@ RUN apt-get update && curl -fsSL https://get.docker.com | sh
 
 
 # setup user and workdir
-RUN addgroup runner && adduser --system --disabled-password --home /app --ingroup runner runner
+RUN addgroup runner && adduser --uid 1000 --system --disabled-password --home /app --ingroup runner runner
 WORKDIR /app
 
 RUN apt-get update \
