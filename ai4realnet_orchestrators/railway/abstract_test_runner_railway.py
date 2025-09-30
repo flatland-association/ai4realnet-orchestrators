@@ -50,6 +50,10 @@ class AbtractTestRunnerRailway(TestRunner):
                "/home/conda/entrypoint_generic.sh", "flatland-trajectory-generate-from-policy",
              ] + generate_policy_args
       exec_with_logging(args if not SUDO else ["sudo"] + args, log_level_stdout=logging.DEBUG)
+
+      args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "chmod", "-R", "a=rwx",
+              f"/vol/{submission_id}/{self.test_id}/{scenario_id}"]
+      exec_with_logging(args if not SUDO else ["sudo"] + args)
     else:
       from flatland.trajectories.policy_runner import generate_trajectory_from_policy
       Path(f"{DATA_VOLUME_MOUNTPATH}/{subdir}").mkdir(parents=True, exist_ok=False)
