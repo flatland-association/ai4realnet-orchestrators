@@ -287,6 +287,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "c3b92403-d342-4d2e-b107-ae4ab443798f": ["Test_14/Level_6.pkl", 277],
       "90071fa0-a560-4c6e-b2ff-fd59588fbdb7": ["Test_14/Level_7.pkl", 272],
       "97bbc19c-de0c-4deb-838d-5675d9525eb8": ["Test_14/Level_8.pkl", 258],
+      "cb55a7a4-460a-48e6-a623-4ebbc88b7be7": ["Test_14/Level_9.pkl", 356],
     }[scenario_id]
 
 
