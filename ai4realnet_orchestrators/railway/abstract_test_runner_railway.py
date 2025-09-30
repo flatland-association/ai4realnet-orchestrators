@@ -1,9 +1,11 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 from typing import List
 
 from ai4realnet_orchestrators.fab_exec_utils import exec_with_logging
+from ai4realnet_orchestrators.s3_utils import s3_utils, S3_BUCKET, AI4REALNET_S3_UPLOAD_ROOT
 from ai4realnet_orchestrators.test_runner import TestRunner
 
 # required only for docker in docker
@@ -14,6 +16,8 @@ SUDO = os.environ.get("SUDO", "true").lower() == "true"
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
 RAILWAY_ORCHESTRATOR_RUN_LOCAL = os.environ.get("RAILWAY_ORCHESTRATOR_RUN_LOCAL", False)
+
+logger = logging.getLogger(__name__)
 
 
 class AbtractTestRunnerRailway(TestRunner):
@@ -51,8 +55,24 @@ class AbtractTestRunnerRailway(TestRunner):
       Path(f"{DATA_VOLUME_MOUNTPATH}/{subdir}").mkdir(parents=True, exist_ok=False)
       try:
         print(subdir)
+        print(generate_policy_args)
         generate_trajectory_from_policy(generate_policy_args)
       except SystemExit as e_info:
         if e_info.code != 0:
           print(e_info)
         assert e_info.code == 0
+
+  def upload_and_empty_local(self, submission_id: str, scenario_id: str):
+    data_volume = Path(DATA_VOLUME_MOUNTPATH)
+    scenario_folder = data_volume / submission_id / self.test_id / scenario_id
+    logger.info(f"Uploading {scenario_folder} to s3 {S3_BUCKET}/{AI4REALNET_S3_UPLOAD_ROOT}{scenario_folder.relative_to(data_volume)}")
+    for f in scenario_folder.rglob("**/*"):
+      if f.is_dir():
+        continue
+      relative_upload_key = str(f.relative_to(data_volume))
+      s3_utils.upload_to_s3(f, relative_upload_key)
+      print(relative_upload_key)
+    logger.info(f"Deleting {scenario_folder} after uploading s3 {S3_BUCKET}/{AI4REALNET_S3_UPLOAD_ROOT}/{scenario_folder.relative_to(data_volume)}")
+    # a bit hacky: in test_containers_railway, /app/data is mounted as root.
+    for d in scenario_folder.iterdir():
+      shutil.rmtree(d)
