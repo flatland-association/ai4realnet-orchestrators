@@ -2,7 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: main
+  flatland-benchmarks-ref: chenkins-patch-1
 
 on:
   workflow_dispatch:
