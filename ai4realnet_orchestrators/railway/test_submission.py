@@ -41,7 +41,7 @@ def test_submit(
       benchmark_id=benchmark_id,
       name=submission_name,
       # TODO use versioned dependency instead of latest
-      submission_data_url="ghcr.io/flatland-association/flatland-baselines:latest",
+      submission_data_url="ghcr.io/flatland-association/flatland-baselines:chenkins-patch-1",
       test_ids=[test_id])
   )
 
