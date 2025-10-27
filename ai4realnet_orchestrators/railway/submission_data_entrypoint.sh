@@ -2,7 +2,7 @@
 set -euxo pipefail
 source /home/conda/.bashrc
 source activate base
-conda activate flatland-baselines
+conda activate flatland-rl
 
 export PYTHONPATH=$PWD
 
