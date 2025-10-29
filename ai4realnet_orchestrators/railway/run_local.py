@@ -19,7 +19,7 @@ def run_local(
 
   print(f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{test_id}/")
   # TODO use versioned dependency instead of latest
-  test_runner.init(submission_data_url="ghcr.io/flatland-association/flatland-baselines:chenkins-patch-1", submission_id=submission_id)
+  test_runner.init(submission_data_url="ghcr.io/flatland-association/flatland-baselines:entrypoint-refactoring", submission_id=submission_id)
   test_runner.run()
 
 
