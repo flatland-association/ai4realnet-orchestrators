@@ -65,7 +65,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     self.exec(generate_policy_args_one_malfunction, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}/with_malfunction")
 
     # no malfunction
-    trajectory_no_malfunction = Trajectory.load_existing(data_dir=data_dir_no_malfunction, ep_id=scenario_id)
+    trajectory_no_malfunction = Trajectory.load_existing(data_dir=Path(data_dir_no_malfunction), ep_id=scenario_id)
     num_agents = trajectory_no_malfunction.trains_rewards_dones_infos["agent_id"].max() + 1
     for _, r in trajectory_no_malfunction.trains_rewards_dones_infos.iterrows():
       assert r["info"]["malfunction"] == 0
