@@ -2,6 +2,7 @@ import ast
 import logging
 import os
 from collections import defaultdict
+from pathlib import Path
 
 import numpy as np
 from flatland.envs.step_utils.states import TrainState
@@ -78,7 +79,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     num_betroffen1 = np.sum(betroffen1)
     logger.info(f"num_betroffen1 {num_betroffen1}")
 
-    trajectory_with_malfunction = Trajectory.load_existing(data_dir=data_dir_with_malfunction, ep_id=scenario_id)
+    trajectory_with_malfunction = Trajectory.load_existing(data_dir=Path(data_dir_with_malfunction), ep_id=scenario_id)
     malfunction_agents = defaultdict(list)
     for _, r in trajectory_with_malfunction.trains_rewards_dones_infos.iterrows():
       if r["info"]["malfunction"] > 0:
