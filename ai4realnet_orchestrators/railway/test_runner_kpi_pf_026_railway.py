@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path
 
 import numpy as np
 from flatland.trajectories.trajectories import Trajectory
@@ -33,8 +34,7 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
     ]
     self.exec(generate_policy_args, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}")
 
-    trajectory = Trajectory(data_dir=data_dir, ep_id=scenario_id)
-    trajectory.load()
+    trajectory = Trajectory.load_existing(data_dir=Path(data_dir), ep_id=scenario_id)
 
     df_trains_arrived = trajectory.trains_arrived
     logger.info(f"trains arrived: {df_trains_arrived}")
