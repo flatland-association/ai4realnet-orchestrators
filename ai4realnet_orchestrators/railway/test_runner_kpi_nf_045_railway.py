@@ -32,7 +32,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
-      "--malfunction_interval", "-1",
+      "--malfunction-interval", "-1",
       "--effects-generator-pkg", "flatland.core.effects_generator", "--effects-generator-cls", "EffectsGenerator",
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}"
@@ -48,7 +48,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
-      "--malfunction_interval", "-1",
+      "--malfunction-interval", "-1",
       "--effects-generator-pkg", "flatland.envs.malfunction_effects_generators", "--effects-generator-cls",
       "ConditionalMalfunctionEffectsGenerator",
       "--effects-generator-kwargs", "earliest_malfunction", f"{earliest_malfunction}",
