@@ -108,7 +108,7 @@ def test_runner_kpi_pf_026_railway():
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "98ceb866-5479-47e6-a735-81292de8ca65"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
   # TODO use versioned dependency instead of latest
-  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:entrypoint-refactoring"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
+  submission_data_url = "ghcr.io/flatland-association/flatland-baselines-deadlock-avoidance-heuristic:entrypoint-refactoring"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   def _verify_kpi_pf_026(test_results):
     assert len(test_results.body) == 1
@@ -193,7 +193,7 @@ def test_runner_kpi_nf_045_railway():
   task_queue_name = 'Railway'  # Celery: queue name = task name
   submission_id = str(uuid.uuid4())  # Celery: task ID
   test_id = "e075d4a7-5cda-4d3c-83ac-69a0db1d74dd"  # Celery: passed in "tests" key of kwargs when Celery task is submitted
-  submission_data_url = "ghcr.io/flatland-association/flatland-baselines:entrypoint-refactoring"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
+  submission_data_url = "ghcr.io/flatland-association/flatland-baselines-deadlock-avoidance-heuristic:entrypoint-refactoring"  # Celery: passed in "submission_data_url" key of kwargs when Celery task is submitted
 
   def _verify_kpi_nf_045(test_results):
     assert len(test_results.body) == 1

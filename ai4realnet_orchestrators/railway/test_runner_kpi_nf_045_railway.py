@@ -27,9 +27,6 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     data_dir_no_malfunction = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/no_malfunction"
     generate_policy_args_no_malfunction = [
       "--data-dir", data_dir_no_malfunction,
-      # TODO use different image for different baselines or encode in submission_data_url?
-      "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
-      "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
       "--malfunction-interval", "-1",
@@ -42,10 +39,6 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
     data_dir_with_malfunction = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/with_malfunction"
     generate_policy_args_one_malfunction = [
       "--data-dir", data_dir_with_malfunction,
-      "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls",
-      "DeadLockAvoidancePolicy",
-      "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls",
-      "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       # TODO https://github.com/flatland-association/flatland-rl/issues/278 disable malfunction generator and replace with effects generator - a bit hacky for now, clean up later...
       "--malfunction-interval", "-1",
