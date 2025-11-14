@@ -25,8 +25,6 @@ class TestRunner_KPI_PF_026_Railway(AbtractTestRunnerRailway):
     data_dir = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}"
     generate_policy_args = [
       "--data-dir", data_dir,
-      "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy", "--policy-cls", "DeadLockAvoidancePolicy",
-      "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation", "--obs-builder-cls", "FullEnvObservation",
       "--rewards-pkg", "flatland.envs.rewards", "--rewards-cls", "PunctualityRewards",
       "--ep-id", scenario_id,
       "--env-path", f"{SCENARIOS_VOLUME_MOUNTPATH}/{env_path}",

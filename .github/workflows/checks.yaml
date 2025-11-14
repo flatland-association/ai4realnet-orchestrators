@@ -2,7 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: main
+  flatland-benchmarks-ref: offline-evaluation-flatland-benchmarks
 
 on:
   workflow_dispatch:
