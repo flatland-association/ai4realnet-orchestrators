@@ -2,8 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  # TODO use released version
-  flatland-benchmarks-ref: main
+  flatland-benchmarks-ref: 0.15.0
 
 on:
   workflow_dispatch:
