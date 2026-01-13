@@ -94,7 +94,11 @@ try:
     import grid2op
     
     # Create environment
-    env = grid2op.make(runner.ENV_NAME)
+    env_path = os.path.join(runner.FRAMEWORK_PATH, "environments", "env_icaps")
+    if os.path.exists(env_path):
+        env = grid2op.make(env_path)
+    else:
+        env = grid2op.make(runner.ENV_NAME)
     
     # Create and load agent
     agent = CurriculumAgent(env.action_space, env.observation_space, "test_agent")

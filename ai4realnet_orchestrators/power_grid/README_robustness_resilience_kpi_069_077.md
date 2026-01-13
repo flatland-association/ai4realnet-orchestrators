@@ -54,7 +54,7 @@ Default settings in `MultiAttackerRobustnessTestRunner`:
 ```python
 ATTACKER_TYPES = ["GEPerturb", "LambdaPIR", "Random", "PPO", "SAC_5", "SAC_10", "RLPerturb"]
 NUM_EPISODES = 50
-ENV_NAME = "l2rpn_case14_sandbox"
+ENV_NAME = "2021icaps"
 ```
 
 ---

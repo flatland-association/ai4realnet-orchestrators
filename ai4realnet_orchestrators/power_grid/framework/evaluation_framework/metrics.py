@@ -76,6 +76,17 @@ class metrics:
         self.euclidean_dist_all = []
         
         for ep in range(len(obs_perturb)):
+            ep_rewards_unpert = rewards_unperturbed[ep] if ep < len(rewards_unperturbed) else []
+            ep_rewards_pert = rewards_perturbed[ep] if ep < len(rewards_perturbed) else []
+            
+            if len(ep_rewards_unpert) == 0 or len(ep_rewards_pert) == 0:
+                print(f"Warning: Empty rewards for episode {ep}, using default metrics")
+                results_resilience = {'degradation_time': 0, 'restoration_time': 0, 'area': 0, 'area_per_1000_steps': 0}
+            else:
+                results_resilience = self.get_resilience_metrics_single_ep(
+                    ep_rewards_unpert, ep_rewards_pert,
+                    distance_peaks=500, distance_valleys=500
+                )
             # compute robustness metrics and similarity in observation
             cos_similarity, euclidean_dist, actions_changed, similarity_score, n_actions = self.get_robustness_metrics_single_ep(obs_unperturb[ep], obs_perturb[ep], actions_unperturbed[ep], actions_perturbed[ep], do_nothing_action)  
             r = [x for x in rewards_perturbed[ep] if not isna(x)]
@@ -175,29 +186,48 @@ class metrics:
 
         Returns:
             tuple: (degradation_times, restoration_times, min_rewards, max_rewards, [n_steps_perturbed], [area_unpert_rpa])
-                - degradation_times (list): Durations of degradation periods.
-                - restoration_times (list): Durations of restoration periods.
-                - min_rewards (list): Minimum reward differences during degradation.
-                - max_rewards (list): Maximum reward differences during restoration.
-                - [n_steps_perturbed] (list): Number of steps in the perturbed episode.
-                - [area_unpert_rpa] (list): Area between unperturbed and perturbed curves.
         """
-        # Filter out NaN and zero values
-        data_ = [[x for x in data_unperturbed if not isna(x) and x != 0], [x for x in data_perturbed if not isna(x) and x != 0]]
-        n_steps_perturbed = len(data_[1])
-        min_len = min(len(data_[0]), n_steps_perturbed)
-        data_ = np.array([d[:min_len] for d in data_])
-
+        # ========== SAFETY CHECKS ==========
+        # Handle None inputs
+        if data_unperturbed is None or data_perturbed is None:
+            return ([0], [0], [0], [0], [0], [0])
+        
+        # Convert to lists if needed and filter NaN/zero
+        data_unpert_clean = [x for x in data_unperturbed if not isna(x) and x != 0]
+        data_pert_clean = [x for x in data_perturbed if not isna(x) and x != 0]
+        
+        # Handle empty arrays
+        if len(data_unpert_clean) == 0 or len(data_pert_clean) == 0:
+            return ([0], [0], [0], [0], [0], [0])
+        
+        n_steps_perturbed = len(data_pert_clean)
+        min_len = min(len(data_unpert_clean), n_steps_perturbed)
+        
+        if min_len == 0:
+            return ([0], [0], [0], [0], [0], [0])
+        
+        data_ = np.array([data_unpert_clean[:min_len], data_pert_clean[:min_len]])
+        
         # Compute percentage difference between unperturbed and perturbed data
-        diff = (100 * (data_[0] - data_[1]) / data_[0])[:-1]
-
-        # If no degradation, return zeros
-        if diff.max() <= 0:
+        # Avoid division by zero
+        with np.errstate(divide='ignore', invalid='ignore'):
+            diff = (100 * (data_[0] - data_[1]) / data_[0])[:-1]
+            diff = np.nan_to_num(diff, nan=0.0, posinf=0.0, neginf=0.0)
+        
+        # If no degradation or empty diff, return zeros
+        if len(diff) == 0 or diff.max() <= 0:
             return ([0], [0], [0], [0], [n_steps_perturbed], [0])
+        
+        # ========== END OF SAFETY CHECKS ==========
 
         # Find peaks (degradation) and valleys (restoration)
         peaks = list(find_peaks(diff, distance=distance_peaks)[0])
-        valleys = [np.where(diff > 0)[0][0]] + list(find_peaks(-diff, distance=distance_valleys)[0])
+        
+        positive_indices = np.where(diff > 0)[0]
+        if len(positive_indices) == 0:
+            return ([0], [0], [0], [0], [n_steps_perturbed], [0])
+        
+        valleys = [positive_indices[0]] + list(find_peaks(-diff, distance=distance_valleys)[0])
 
         if len(peaks) == 0 or len(valleys) == 1:
             return ([0], [0], [0], [0], [n_steps_perturbed], [0])
@@ -211,6 +241,7 @@ class metrics:
         restoration_times = []
         min_rewards = []
         max_rewards = []
+        
         while len(peaks) + len(valleys) > 0:
             if peak < valley:
                 diff_reward = diff[peak]
@@ -259,12 +290,21 @@ class metrics:
         if len(degradation_times) > len(restoration_times):
             restoration_times.append(len(diff) - prev_peak)
             max_rewards.append(min(diff[prev_peak:]))
+        
+        # Handle empty lists
+        if len(degradation_times) == 0:
+            degradation_times = [0]
+        if len(restoration_times) == 0:
+            restoration_times = [0]
+        if len(min_rewards) == 0:
+            min_rewards = [0]
+        if len(max_rewards) == 0:
+            max_rewards = [0]
 
         # Compute area between unperturbed and perturbed curves
         area_unpert_rpa = trapezoid(data_[0]) - trapezoid(data_[1])
 
         return (degradation_times, restoration_times, min_rewards, max_rewards, [n_steps_perturbed], [area_unpert_rpa])
-
     def aggregate_metrics_resilience(self, metrics_resilience_raw):
         """
         Aggregates resilience metrics across episodes, weighted by the number of degraded states.

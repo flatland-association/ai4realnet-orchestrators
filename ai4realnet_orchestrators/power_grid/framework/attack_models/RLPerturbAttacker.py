@@ -92,5 +92,5 @@ class RLPerturbAttacker(BaseAttackerClass):
         print(f"[DEBUG] best_combinations length: {len(best_combinations)}")
         print(f"[DEBUG] best_combinations (first 20): {best_combinations[:20]}")
         print(f"[DEBUG] subset_acts2 length: {len(subset_acts2)}")
-        return RLPerturbationAgent(self.env.observation_space, self.agent.agent, 0.5, attr_list, attr_start_idx, subset=best_combinations, subset_acts=subset_acts2)
+        return RLPerturbationAgent(self.env.observation_space, self.agent.agent, 0.5, attr_list, attr_start_idx, subset=None, subset_acts=None)
 

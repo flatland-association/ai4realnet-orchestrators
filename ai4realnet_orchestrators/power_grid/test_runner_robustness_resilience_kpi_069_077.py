@@ -121,13 +121,10 @@ class MultiAttackerRobustnessTestRunner(TestRunner):
     - Cacheable: Results cached across KPI requests
     """
     
-    # Framework configuration - relative to this file
-    FRAMEWORK_PATH = FRAMEWORK_PATH
-    
     # Evaluation configuration
     ATTACKER_TYPES = ["GEPerturb", "LambdaPIR", "Random", "PPO", "SAC_10", "SAC_5", "RLPerturb"]
     NUM_EPISODES = 50
-    ENV_NAME = "l2rpn_case14_sandbox"
+    ENV_NAME = os.path.join(FRAMEWORK_PATH, "environments", "env_icaps")
     
     def __init__(self, test_id: str, scenario_ids: List[str], benchmark_id: str):
         """
