@@ -16,6 +16,7 @@ from ai4realnet_orchestrators.power_grid.test_runner_kpi_of_036_power_grid impor
 from ai4realnet_orchestrators.power_grid.test_runner_kpi_tf_034_power_grid import TestRunner_KPI_TF_034_Power_Grid
 from ai4realnet_orchestrators.power_grid.test_runner_kpi_af_008_power_grid import TestRunner_KPI_AF_008_Power_Grid
 
+from ai4realnet_orchestrators.power_grid.test_runner_kpi_df_052_power_grid import TestRunner_KPI_DF_052_Power_Grid
 
 logger = logging.getLogger(__name__)
 
@@ -156,7 +157,7 @@ power_grid_orchestrator = Orchestrator(
         #     # KPI-OF-036: Operation score (Power Grid)
         "ae4dcac7-c559-457e-902d-ee35d064bb3f": TestRunner_KPI_OF_036_Power_Grid(
             test_id="ae4dcac7-c559-457e-902d-ee35d064bb3f", scenario_ids=['fc090c38-8740-4911-96aa-2defd06f8715'], benchmark_id="4b0be731-8371-4e4e-a673-b630187b0bb8"
-        )
+        ),
         #
         #     # KPI-AS-068: Assistant adaptation to user preferences (Power Grid)
         #     "c69ff5e9-497b-41e8-adff-2221bb823365": TestRunner_KPI_AS_068_Power_Grid(
@@ -184,9 +185,9 @@ power_grid_orchestrator = Orchestrator(
         #     ),
         #
             # KPI-DF-052: Domain shift adaptation time (Power Grid)
-            "855729a4-6729-4ae2-bb8d-443ef4867d94": TestRunner_KPI_DF_052_Power_Grid(
-                test_id="855729a4-6729-4ae2-bb8d-443ef4867d94", scenario_ids=['81f18394-0164-4896-9408-4315bcfcc5e0'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
-            ),
+        "855729a4-6729-4ae2-bb8d-443ef4867d94": TestRunner_KPI_DF_052_Power_Grid(
+            test_id="855729a4-6729-4ae2-bb8d-443ef4867d94", scenario_ids=['81f18394-0164-4896-9408-4315bcfcc5e0'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
+        ),
         #
         #     # KPI-DF-053: Domain shift generalization gap (Power Grid)
         #     "17b805b2-b773-4c22-8ba9-598780e7a40d": TestRunner_KPI_DF_053_Power_Grid(
