@@ -1,0 +1,22 @@
+{
+  "score_config": {
+    "min_losses_ratio": 0.8,
+    "key_score": "grid_operation_cost",
+    "seed": 4343,
+    "timeout": "99999",
+    "total_timesteps": 419744
+  },
+  "nb_scenario": 2,
+  "episodes_info": {
+    "apr_42_2": {
+      "length": 2012,
+      "name": "apr_42_2",
+      "seed": 1339047936
+    },
+    "aug_01_1": {
+      "length": 2012,
+      "name": "aug_01_1",
+      "seed": 1762738022
+    }
+  }
+}
