@@ -28,12 +28,13 @@ Resilience KPIs (KPI-074 to KPI-077):
 
 Authors: INESC TEC (Robustness/Resilience), AI4REALNET Consortium
 """
-
+import random
 from abc import abstractmethod
-import json
 import logging
 import os
 import pickle
+
+import pandas as pd
 import requests
 import sys
 import tempfile
@@ -44,7 +45,6 @@ import numpy as np
 from lightsim2grid import LightSimBackend
 import grid2op
 from grid2op.utils import ScoreL2RPN2023
-from grid2op.dtypes import dt_int
 
 from ai4realnet_orchestrators.test_runner import TestRunner
 
@@ -60,9 +60,6 @@ FRAMEWORK_PATH = os.path.join(SCRIPT_DIR, "framework")
 if FRAMEWORK_PATH not in sys.path:
     sys.path.insert(0, FRAMEWORK_PATH)
 
-# Configuration paths
-SCORING_CONFIG_JSON = os.path.join(SCRIPT_DIR, 'configuration', 'scoring-config.json')
-
 
 # ============================================================================
 # Base Class: PowerGridTestRunner (TEMPLATE - DO NOT MODIFY)
@@ -71,12 +68,12 @@ SCORING_CONFIG_JSON = os.path.join(SCRIPT_DIR, 'configuration', 'scoring-config.
 class PowerGridTestRunner(TestRunner):
     """
     Base TestRunner for Power Grid KPIs.
-    
+
     Provides common functionality:
     - Agent loading (CurriculumAgent, RandomAgent)
     - Environment creation with LightSimBackend
     - Submission data handling
-    
+
     Subclasses must implement: getResult(env, agent) -> dict
     """
 
@@ -107,7 +104,7 @@ class PowerGridTestRunner(TestRunner):
     def load_agent(agent_type: str, agent_path: str | None, env):
         """
         Load agent based on type.
-        
+
         Supported types:
         - RandomAgent: Grid2Op random agent
         - CurriculumAgent: Trained curriculum learning agent
@@ -140,13 +137,13 @@ class PowerGridTestRunner(TestRunner):
     def getResult(self, env, agent) -> dict:
         """
         Compute and return KPI results.
-        
+
         Must be implemented by subclasses.
-        
+
         Args:
             env: Grid2Op environment
             agent: Loaded agent
-            
+
         Returns:
             dict with "primary" key containing the KPI value
         """
@@ -157,39 +154,56 @@ class PowerGridTestRunner(TestRunner):
 # Operational KPIs (008, 012, 036) - Using ScoreL2RPN2023
 # ============================================================================
 
-def evaluate_operational_kpis(env, agent, nb_scenario: int) -> dict:
+def get_scoring_config(chronics_path: str, seed: int):
+    """
+    Retrieve scenario information (number, length) for operational KPI calculation and generate seeds.
+    """
+    scenario_names = sorted([name for name in os.listdir(chronics_path)
+                             if os.path.isdir(os.path.join(chronics_path, name))])
+    scenario_lengths = [len(pd.read_csv(os.path.join(chronics_path, name + "/load_p.csv.bz2"), compression="bz2"))
+                        for name in scenario_names]
+
+    rng = random.Random(seed)
+    config = {
+        "nb_scenario": len(scenario_names),
+        "total_timesteps": sum(scenario_lengths),
+        "episodes_info": {}
+    }
+
+    for name, length in zip(scenario_names, scenario_lengths):
+        config["episodes_info"][name] = {
+            "length": length,
+            "env_seed": rng.randint(0, 2**31 - 1),
+            "agent_seed": rng.randint(0, 2**31 - 1)
+        }
+
+    return config
+
+
+def evaluate_operational_kpis(env, agent, nb_scenario: int = 9999) -> dict:
     """
     Evaluate operational KPIs using Grid2Op's ScoreL2RPN2023.
-    
+
     Returns scores for:
     - op_score: Operation score
     - nres_score: Non-renewable energy score (carbon intensity)
     - assistant_confidence_score: Assistant alert accuracy
     """
-    with open(SCORING_CONFIG_JSON) as config_file:
-        config = json.load(config_file)
+    chronics_path = os.path.join(env.get_path_env(), "chronics")
+    config = get_scoring_config(chronics_path, 4295) # fixed seed for reproducibility
+
+    episodes_info = config["episodes_info"]
+    scenario_names = episodes_info.keys()
+    env_seeds = [int(episodes_info[name]["env_seed"]) for name in scenario_names]
+    agent_seeds = [int(episodes_info[name]["agent_seed"]) for name in scenario_names]
 
     nb_scenario = min(nb_scenario, int(config["nb_scenario"]))
-
-    # Environment seeds from config
-    episodes_info = config["episodes_info"]
-    env_seeds = [
-        int(episodes_info[os.path.split(el)[-1]]["seed"])
-        for el in sorted(env.chronics_handler.real_data.subpaths)
-        if os.path.split(el)[-1] in episodes_info.keys()
-    ]
-
-    # Agent seeds generated with provided random seed
-    np.random.seed(int(config["score_config"]["seed"]))
-    max_int = np.iinfo(dt_int).max
-    agent_seeds = list(np.random.randint(max_int, size=int(config["nb_scenario"])))
-
     scoring = ScoreL2RPN2023(
         env=env,
         env_seeds=env_seeds[:nb_scenario],
         agent_seeds=agent_seeds[:nb_scenario],
         nb_scenario=nb_scenario,
-        min_losses_ratio=config["score_config"]["min_losses_ratio"],
+        min_losses_ratio=0.8,
         verbose=0,
         max_step=-1,
         nb_process_stats=1,
@@ -208,13 +222,7 @@ def evaluate_operational_kpis(env, agent, nb_scenario: int) -> dict:
         "assistant_confidence_score": [float(score[3]) for score in all_scores],
     }
 
-    episode_names = episodes_info.keys()
-    score_config = config["score_config"]
-    weights = [
-        float(episodes_info[ep]["length"]) / float(score_config["total_timesteps"])
-        for ep in sorted(episode_names)
-    ]
-    
+    weights = [float(episodes_info[name]["length"]) / float(config["total_timesteps"]) for name in scenario_names]
     total_op_score = sum(w * s for w, s in zip(weights, scores_per_episode["op_score"]))
     total_nres_score = sum(w * s for w, s in zip(weights, scores_per_episode["nres_score"]))
     total_assistant_score = sum(w * s for w, s in zip(weights, scores_per_episode["assistant_confidence_score"]))
@@ -228,25 +236,25 @@ def evaluate_operational_kpis(env, agent, nb_scenario: int) -> dict:
 
 class TestRunner_KPI_AF_008_Power_Grid(PowerGridTestRunner):
     """KPI-AF-008: Assistant alert accuracy"""
-    
+
     def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent, 2)
+        scores = evaluate_operational_kpis(env, agent)
         return {"primary": scores["assistant_confidence_score"]}
 
 
 class TestRunner_KPI_CF_012_Power_Grid(PowerGridTestRunner):
     """KPI-CF-012: Carbon intensity"""
-    
+
     def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent, 2)
+        scores = evaluate_operational_kpis(env, agent)
         return {"primary": scores["nres_score"]}
 
 
 class TestRunner_KPI_OF_036_Power_Grid(PowerGridTestRunner):
     """KPI-OF-036: Operation score"""
-    
+
     def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent, 2)
+        scores = evaluate_operational_kpis(env, agent)
         return {"primary": scores["op_score"]}
 
 
