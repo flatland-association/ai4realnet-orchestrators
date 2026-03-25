@@ -84,7 +84,14 @@ class PowerGridTestRunner(TestRunner):
 
     def run_scenario(self, scenario_id: str, submission_id: str):
         """Run evaluation for a specific scenario."""
-        scenario_data = self.submission_data[scenario_id]
+        if scenario_id not in self.submission_data["scenarios"]:
+            raise ValueError(f"Unrecognized scenario ID: '{scenario_id}'")
+
+        default_config = self.submission_data["default_config"]
+        specific_config = self.submission_data["specific_config"][scenario_id]
+
+        # Merge default and specific configs (specific overrides default)
+        scenario_data = {**default_config, **specific_config}
 
         # Create environment with fast backend
         env = grid2op.make(scenario_data['scenario_path'], backend=LightSimBackend())
