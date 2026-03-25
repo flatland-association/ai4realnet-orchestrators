@@ -17,6 +17,7 @@
 
     "default_config": {
         "agent_type": "RandomAgent",
+        "agent_path": null,
         "scenario_path": "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_small"
     },
 

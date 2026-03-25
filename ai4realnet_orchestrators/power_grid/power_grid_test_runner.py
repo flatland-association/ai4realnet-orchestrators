@@ -88,7 +88,7 @@ class PowerGridTestRunner(TestRunner):
             raise ValueError(f"Unrecognized scenario ID: '{scenario_id}'")
 
         default_config = self.submission_data["default_config"]
-        specific_config = self.submission_data["specific_config"][scenario_id]
+        specific_config = self.submission_data["specific_config"].get(scenario_id, {})
 
         # Merge default and specific configs (specific overrides default)
         scenario_data = {**default_config, **specific_config}
