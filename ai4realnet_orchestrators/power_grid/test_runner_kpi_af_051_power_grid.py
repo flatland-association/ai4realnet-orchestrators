@@ -139,8 +139,8 @@ class TestRunner_KPI_AF_051_Power_Grid(TestRunner):
     def load_scenario_data(scenario_id: str):
         return {
             "5950ad04-76e5-4c4d-aa44-435d01d250eb": "l2rpn_case14_sandbox",
-            "6037056e-f720-4ec6-b867-24cd3483cc0c": "ai4realnet_small",
-            "c2413ae7-e973-4846-b61b-d404cb518dfb": "ai4realnet_large",
+            # "6037056e-f720-4ec6-b867-24cd3483cc0c": "ai4realnet_small",
+            # "c2413ae7-e973-4846-b61b-d404cb518dfb": "ai4realnet_large",
         }[scenario_id]
 
 
