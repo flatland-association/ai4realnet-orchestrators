@@ -32,10 +32,9 @@ import tempfile
 
 # Get the directory where this script lives (power_grid folder)
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-POWER_GRID_DIR = SCRIPT_DIR
 FRAMEWORK_DIR = os.path.join(SCRIPT_DIR, "framework")
 ORCHESTRATORS_DIR = os.path.dirname(SCRIPT_DIR)  # ai4realnet_orchestrators
-PARENT_DIR = os.path.dirname(ORCHESTRATORS_DIR)   # ai4realnet-orchestrators
+PARENT_DIR = os.path.dirname(ORCHESTRATORS_DIR)  # ai4realnet-orchestrators
 
 # Add paths for imports
 sys.path.insert(0, PARENT_DIR)          # For ai4realnet_orchestrators package
@@ -56,21 +55,19 @@ print(f"Framework directory: {FRAMEWORK_DIR}")
 # ============================================================
 
 from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
-    PowerGridTestRunner,
     RobustnessResilienceTestRunner,
     evaluate_operational_kpis
-)
-
-operational_runner = PowerGridTestRunner(
-    test_id="ab91af79-ffc3-4da7-916a-6574609dc1b6",
-    scenario_ids=['75d20248-740b-4d84-86e7-1de89f10fc1e'],
-    benchmark_id="4b0be731-8371-4e4e-a673-b630187b0bb8"
 )
 
 robustness_runner = RobustnessResilienceTestRunner(
     test_id="b8a9a411-7cfe-4c1d-b9a6-eef1c0efe920",
     scenario_ids=['61063867-df62-4024-be42-c57507a15d7c'],
     benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
+)
+
+robustness_runner.init(
+    submission_data_url="https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/curriculum-ai4realnet-small.json",
+    submission_id="local-test"
 )
 
 # OVERRIDE framework path for local testing
@@ -84,15 +81,11 @@ env_path = "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_small"
 print(f"\n📦 Environment path: {env_path}")
 print(f"   Exists: {os.path.exists(env_path)}")
 
-agent_path = os.path.join(FRAMEWORK_DIR, "agent.zip")
+agent_path = os.path.join(SCRIPT_DIR, "submission", "trained_model", "curriculum", "agent.zip")
 print(f"\n📦 Agent path: {agent_path}")
 print(f"   Exists: {os.path.exists(agent_path)}")
 
 try:
-    print(f"\n🔄 Initializing framework...")
-    robustness_runner._initialize_framework()
-    print("✅ Framework initialized!")
-    
     print(f"\n🔄 Loading agent from zip (local)...")
     
     # Extract zip locally
