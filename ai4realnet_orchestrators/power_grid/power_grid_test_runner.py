@@ -28,6 +28,7 @@ Resilience KPIs (KPI-074 to KPI-077):
 
 Authors: INESC TEC (Robustness/Resilience), AI4REALNET Consortium
 """
+import json
 import random
 from abc import abstractmethod
 import logging
@@ -55,6 +56,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FRAMEWORK_PATH = os.path.join(SCRIPT_DIR, "framework")
+CONFIG_PATH = os.path.join(SCRIPT_DIR, "configuration")
 
 # Add framework to path for imports
 if FRAMEWORK_PATH not in sys.path:
@@ -89,15 +91,22 @@ class PowerGridTestRunner(TestRunner):
 
         default_config = self.submission_data["default_config"]
         specific_config = self.submission_data["specific_config"].get(scenario_id, {})
-
         # Merge default and specific configs (specific overrides default)
         scenario_data = {**default_config, **specific_config}
 
+        # Load mapping towards scenario and agent paths
+        with open(os.path.join(CONFIG_PATH, "path-mapping.json"), "r") as f:
+            mapping = json.load(f)
+
         # Create environment with fast backend
-        env = grid2op.make(scenario_data['scenario_path'], backend=LightSimBackend())
+        scenario_name = scenario_data["scenario_name"]
+        scenario_path = mapping["scenario_path"][scenario_name]
+        env = grid2op.make(scenario_path, backend=LightSimBackend())
 
         # Create and load agent
-        agent = self.load_agent(scenario_data['agent_type'], scenario_data['agent_path'], env)
+        agent_type = scenario_data["agent_type"]
+        agent_path = mapping["agent_path"][agent_type]
+        agent = self.load_agent(agent_type, agent_path, env)
 
         return self.getResult(env, agent)
 

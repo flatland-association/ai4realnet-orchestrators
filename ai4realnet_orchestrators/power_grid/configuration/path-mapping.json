@@ -1,0 +1,10 @@
+{
+    "agent_path": {
+        "CurriculumAgent": "/mnt/d/PythonProjects/ai4realnet/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/curriculum/agent.zip",
+        "RandomAgent": null
+    },
+    "scenario_path": {
+        "ai4realnet_small": "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_small",
+        "ai4realnet_large": "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_large"
+    }
+}
