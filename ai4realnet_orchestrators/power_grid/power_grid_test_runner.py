@@ -46,6 +46,7 @@ import numpy as np
 from lightsim2grid import LightSimBackend
 import grid2op
 from grid2op.utils import ScoreL2RPN2023
+from domain_shift_kpis.adaptation_time import DsAdaptationTime
 
 from ai4realnet_orchestrators.test_runner import TestRunner
 
@@ -100,15 +101,19 @@ class PowerGridTestRunner(TestRunner):
 
         # Create environment with fast backend
         scenario_name = scenario_data["scenario_name"]
+        scenario_shift_name = scenario_data["scenario_shift_name"]
         scenario_path = mapping["scenario_path"][scenario_name]
+        scenario_shift_path = mapping["scenario_path"][scenario_shift_name]
         env = grid2op.make(scenario_path, backend=LightSimBackend())
-
+        # TODO : the scenario path should be replaced by scenario_shift_path when the shifted env is provided
+        # For the moment the same environment is used for shift distribution
+        env_shift = grid2op.make(scenario_path, backend=LightSimBackend())
         # Create and load agent
         agent_type = scenario_data["agent_type"]
         agent_path = mapping["agent_path"][agent_type]
         agent = self.load_agent(agent_type, agent_path, env)
 
-        return self.getResult(env, agent)
+        return self.getResult(env, env_shift, agent)
 
     @staticmethod
     def load_submission_data(submission_data_url: str) -> dict:
@@ -143,14 +148,39 @@ class PowerGridTestRunner(TestRunner):
                 model_path = os.path.join(temp_dir, 'model')
                 actions_path = os.path.join(temp_dir, 'actions')
                 agent.load(model_path, actions_path, best_action_threshold=0.95)
-
+                
+        elif agent_type == "ExpertAgent":
+            from ExpertAgent.utils.helper_functions import make_gymenv
+            from ExpertAgent.ExpertAgent import ExpertAgentRL
+            from stable_baselines3.ppo import MlpPolicy
+            
+            env_gym = make_gymenv(env, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
+            model_path = agent_path
+            nn_kwargs = {
+                "policy": MlpPolicy,
+                "env": env_gym,
+                "verbose": True,
+                "learning_rate": 1e-3,
+                "tensorboard_log": model_path,
+                "policy_kwargs": {"net_arch": [800, 1000, 1000, 800]},
+                "device": "auto"
+            }
+            agent = ExpertAgentRL(name="PPO_SB3",
+                                  env=env,
+                                  action_space=env.action_space,
+                                  gymenv=env_gym,
+                                  gym_act_space=env_gym.action_space,
+                                  gym_obs_space=env_gym.observation_space,
+                                  nn_kwargs=nn_kwargs
+                                  )
+            agent.load(model_path)
         else:
             raise SyntaxError(f'Unsupported agent type: {agent_type}')
 
         return agent
 
     @abstractmethod
-    def getResult(self, env, agent) -> dict:
+    def getResult(self, env, env_shift, agent) -> dict:
         """
         Compute and return KPI results.
 
@@ -273,6 +303,144 @@ class TestRunner_KPI_OF_036_Power_Grid(PowerGridTestRunner):
         scores = evaluate_operational_kpis(env, agent)
         return {"primary": scores["op_score"]}
 
+# ============================================================================
+# Reliability & Domain shift KPIs (052-058 + 090)
+# ============================================================================
+
+def evaluate_domain_shift_kpis(env, env_shift, agent) -> Dict:
+    from ExpertAgent.utils.helper_functions import make_gymenv
+    env_gym = make_gymenv(env, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
+    env_gym_shift = make_gymenv(env_shift, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
+    scores = {}
+    
+    ds_kpi = DsAdaptationTime(agent=agent, 
+                              trained_model_path=None, 
+                              env=env_gym, 
+                              env_shift=env_gym_shift
+                             )
+    
+    # save_path = os.path.join(here, "..", "trained_models", "PPO_SB3_FINETUNE")
+    
+    train_kwargs = {
+        "train_steps": int(1e3),
+        "load_path": None,
+        "save_path": None,
+        "save_freq": 5000,
+    }
+    
+    eval_kwargs = {
+        "n_eval_episodes": 10,
+        "render": False,
+        "deterministic": True,
+        "return_episode_rewards": True
+    }
+    
+    results = ds_kpi.compute(acceptance_threshold=200.,
+                             fine_tune_budget=int(15e3),
+                             agent_train_fun=agent.train_static,
+                             agent_train_kwargs=train_kwargs,
+                             agent_eval_fun=agent.evaluate,
+                             agent_eval_kwargs=eval_kwargs,
+                             min_train_steps=int(1e3),
+                             save_path=None
+                             )
+    return results
+
+# KPI ID to metric mapping
+RELIABILITY_KPI_MAPPING = {
+    # Robustness KPIs (Benchmark: 3810191b-8cfd-4b03-86b2-f7e530aab30d)
+    "855729a4-6729-4ae2-bb8d-443ef4867d94": {
+        "name": "KPI-DF-052: Domain shift adaptation time",
+        "metric_key": "adaptation_time",
+        "description": "Iterations required for an agent to adapt its policy to domain shift"
+    },
+    "c5e4f893-4302-47e8-98d6-b5fbcb10963a": {
+        "name": "KPI-DF-057: Domain shift success rate drop",
+        "metric_key": "performance_drop",
+        "description": "The performance drop when encountering a domain shift"
+    },
+}
+
+class ReliabilityTestRunner(PowerGridTestRunner):
+    """
+    Extended TestRunner for Reliability KPIs (052-058 + 090).
+    
+    Inherits from PowerGridTestRunner and implements getResult() to run
+    the reliability evaluation against a RL agent
+    
+    Single evaluation computes ALL the metrics
+    """
+    
+    # Class-level cache: {submission_id: all_metrics_dict}
+    _metrics_cache: Dict[str, Dict] = {}
+    
+    def __init__(self, test_id: str, scenario_ids: List[str], benchmark_id: str):
+        """Initialize with KPI-specific configuration."""
+        super().__init__(test_id=test_id, benchmark_id=benchmark_id)
+        self.scenario_ids = scenario_ids
+        
+        # Get KPI info from mapping
+        self.kpi_info = ROBUSTNESS_RESILIENCE_KPI_MAPPING.get(test_id, {
+            "name": "Unknown KPI",
+            "metric_key": None,
+            "description": ""
+        })
+        
+        logger.info(
+            f"Initialized RobustnessResilienceTestRunner\n"
+            f"  Test ID: {test_id}\n"
+            f"  KPI: {self.kpi_info['name']}"
+        )
+    
+    def getResult(self, env, env_shift, agent) -> dict:
+        # Use submission_id for caching (set by parent's init)
+        cache_key = getattr(self, 'submission_id', 'default')
+        
+        logger.info(
+            f"Running evaluation for {self.kpi_info['name']}\n"
+            f"  Cache key: {cache_key}"
+        )
+        
+        # Check cache - avoid re-running expensive evaluation
+        if cache_key not in self._metrics_cache:
+            logger.info("Cache miss - running complete multi-attacker evaluation")
+            all_metrics = evaluate_domain_shift_kpis(env, env_shift, agent)
+            self._metrics_cache[cache_key] = all_metrics
+            logger.info(f"Cached results for {cache_key}")
+        else:
+            logger.info(f"Cache hit - using existing results for {cache_key}")
+        
+        all_metrics = self._metrics_cache[cache_key]
+        
+        # Extract KPI-specific value
+        metric_key = self.kpi_info.get('metric_key')
+        if metric_key is None:
+            logger.error(f"No metric_key defined for test_id {self.test_id}")
+            return {"primary": 0.0}
+        
+        kpi_value = all_metrics.get(metric_key, 0.0)
+        
+        logger.info(
+            f"KPI Result: {self.kpi_info['name']} = {kpi_value}\n"
+            f"  Description: {self.kpi_info['description']}"
+        )
+        
+        return {"primary": float(kpi_value)}
+
+
+class TestRunner_KPI_DF_052_Power_Grid(PowerGridTestRunner):
+    """KPI-DF-052: Domain shift adaptation time"""
+    
+    def getResult(self, env, env_shift, agent) -> Dict:
+        scores = evaluate_domain_shift_kpis(env, env_shift, agent)
+        return {"primary": scores["adaptation_time"]}
+
+class TestRunner_KPI_DF_057_Power_Grid(PowerGridTestRunner):
+    """KPI-DF-052: Domain shift Success Rate Drop (performance drop)"""
+    
+    def getResult(self, env, env_shift, agent) -> Dict:
+        scores = evaluate_domain_shift_kpis(env, env_shift, agent)
+        return {"primary": scores["performance_drop"]}
 
 # ============================================================================
 # Robustness & Resilience KPIs (069-077) - Configuration
