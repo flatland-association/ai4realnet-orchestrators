@@ -9,6 +9,8 @@ from ai4realnet_orchestrators.orchestrator import Orchestrator
 
 # NOTE: import YourTestRunner implementations here
 from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
+    TestRunner_KPI_DF_052_Power_Grid,
+    TestRunner_KPI_DF_057_Power_Grid,
     TestRunner_KPI_DF_069_Power_Grid,
     TestRunner_KPI_FF_070_Power_Grid,
     TestRunner_KPI_SF_071_Power_Grid,
@@ -23,7 +25,7 @@ from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
     TestRunner_KPI_OF_036_Power_Grid
 )
 
-from ai4realnet_orchestrators.power_grid.test_runner_kpi_df_052_power_grid import TestRunner_KPI_DF_052_Power_Grid
+# from ai4realnet_orchestrators.power_grid.test_runner_kpi_df_052_power_grid import TestRunner_KPI_DF_052_Power_Grid
 
 logger = logging.getLogger(__name__)
 
@@ -214,10 +216,10 @@ power_grid_orchestrator = Orchestrator(
         #     test_id="07f8625d-c39a-4fd1-9633-012f342352e9", scenario_ids=['82aed30d-9b28-4b8f-ba9a-fd05d6defec6'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
         # ),
         #
-        # # KPI-DF-057: Domain shift success rate drop (Power Grid)
-        # "c5e4f893-4302-47e8-98d6-b5fbcb10963a": TestRunner_KPI_DF_057_Power_Grid(
-        #     test_id="c5e4f893-4302-47e8-98d6-b5fbcb10963a", scenario_ids=['4d2b00cd-447a-4c7e-8cab-863f0402cb67'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
-        # ),
+        # KPI-DF-057: Domain shift success rate drop (Power Grid)
+        "c5e4f893-4302-47e8-98d6-b5fbcb10963a": TestRunner_KPI_DF_057_Power_Grid(
+            test_id="c5e4f893-4302-47e8-98d6-b5fbcb10963a", scenario_ids=['4d2b00cd-447a-4c7e-8cab-863f0402cb67'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
+        ),
         #
         # # KPI-DF-090: Domain shift forgetting rate (Power Grid)
         # "648afbec-80ad-4490-869f-6c3d8088d50f": TestRunner_KPI_DF_090_Power_Grid(
