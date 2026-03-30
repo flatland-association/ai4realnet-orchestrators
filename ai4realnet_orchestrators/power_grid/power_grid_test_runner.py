@@ -311,7 +311,6 @@ def evaluate_domain_shift_kpis(env, env_shift, agent) -> Dict:
     from ExpertAgent.utils.helper_functions import make_gymenv
     env_gym = make_gymenv(env, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
     env_gym_shift = make_gymenv(env_shift, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
-    scores = {}
     
     ds_kpi = DsAdaptationTime(agent=agent, 
                               trained_model_path=None, 
