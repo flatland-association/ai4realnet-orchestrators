@@ -1,7 +1,7 @@
 {
     "agent_path": {
         "CurriculumAgent": "/mnt/d/PythonProjects/ai4realnet/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/curriculum/agent.zip",
-        "ExpertAgent": "/home/milad/repos/ai4realnet/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/ExpertAgent/PPO_SB3.zip",
+        "ExpertAgent": "/home/milad/repos/ai4realnet/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/ExpertAgent/ai4realnet_small/PPO_SB3.zip",
         "RandomAgent": null
     },
     "scenario_path": {
