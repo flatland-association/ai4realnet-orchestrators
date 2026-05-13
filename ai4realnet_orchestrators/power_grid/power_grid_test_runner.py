@@ -101,13 +101,15 @@ class PowerGridTestRunner(TestRunner):
 
         # Create environment with fast backend
         scenario_name = scenario_data["scenario_name"]
-        scenario_shift_name = scenario_data["scenario_shift_name"]
         scenario_path = mapping["scenario_path"][scenario_name]
-        scenario_shift_path = mapping["scenario_path"][scenario_shift_name]
         env = grid2op.make(scenario_path, backend=LightSimBackend())
-        # TODO : the scenario path should be replaced by scenario_shift_path when the shifted env is provided
-        # For the moment the same environment is used for shift distribution
-        env_shift = grid2op.make(scenario_path, backend=LightSimBackend())
+
+        # Create shift environment
+        # TODO: update scenario_shift_path in path-mapping.json, it's the same as scenario_path for now
+        scenario_shift_name = scenario_data["scenario_shift_name"]
+        scenario_shift_path = mapping["scenario_shift_path"][scenario_shift_name]
+        env_shift = grid2op.make(scenario_shift_path, backend=LightSimBackend())
+
         # Create and load agent
         agent_type = scenario_data["agent_type"]
         agent_path = mapping["agent_path"][agent_type]
@@ -379,14 +381,14 @@ class ReliabilityTestRunner(PowerGridTestRunner):
         self.scenario_ids = scenario_ids
         
         # Get KPI info from mapping
-        self.kpi_info = ROBUSTNESS_RESILIENCE_KPI_MAPPING.get(test_id, {
+        self.kpi_info = RELIABILITY_KPI_MAPPING.get(test_id, {
             "name": "Unknown KPI",
             "metric_key": None,
             "description": ""
         })
         
         logger.info(
-            f"Initialized RobustnessResilienceTestRunner\n"
+            f"Initialized ReliabilityTestRunner\n"
             f"  Test ID: {test_id}\n"
             f"  KPI: {self.kpi_info['name']}"
         )
@@ -434,12 +436,14 @@ class TestRunner_KPI_DF_052_Power_Grid(PowerGridTestRunner):
         scores = evaluate_domain_shift_kpis(env, env_shift, agent)
         return {"primary": scores["adaptation_time"]}
 
+
 class TestRunner_KPI_DF_057_Power_Grid(PowerGridTestRunner):
     """KPI-DF-052: Domain shift Success Rate Drop (performance drop)"""
     
     def getResult(self, env, env_shift, agent) -> Dict:
         scores = evaluate_domain_shift_kpis(env, env_shift, agent)
         return {"primary": scores["performance_drop"]}
+
 
 # ============================================================================
 # Robustness & Resilience KPIs (069-077) - Configuration
