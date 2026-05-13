@@ -77,7 +77,7 @@ print(f"✅ TestRunner initialized")
 print(f"   KPI: {robustness_runner.kpi_info['name']}")
 print(f"   Framework: {robustness_runner.FRAMEWORK_PATH}")
 
-env_path = "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_small"
+env_path = "/home/almalinux/grid2op-scenario/ai4realnet_small"
 print(f"\n📦 Environment path: {env_path}")
 print(f"   Exists: {os.path.exists(env_path)}")
 

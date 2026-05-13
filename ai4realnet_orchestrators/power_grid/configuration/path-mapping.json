@@ -1,10 +1,10 @@
 {
     "agent_path": {
-        "CurriculumAgent": "/mnt/d/PythonProjects/ai4realnet/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/curriculum/agent.zip",
+        "CurriculumAgent": "/home/almalinux/ai4realnet-orchestrators/ai4realnet_orchestrators/power_grid/submission/trained_model/curriculum/agent.zip",
         "RandomAgent": null
     },
     "scenario_path": {
-        "ai4realnet_small": "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_small",
-        "ai4realnet_large": "/mnt/d/PythonProjects/ai4realnet/grid2op-scenario/ai4realnet_large"
+        "ai4realnet_small": "/home/almalinux/grid2op-scenario/ai4realnet_small",
+        "ai4realnet_large": "/home/almalinux/grid2op-scenario/ai4realnet_large"
     }
 }
