@@ -1,0 +1,6 @@
+ExpertOp4Grid @ git+https://github.com/Mleyliabadi/ExpertOp4Grid.git
+LJN_AGENT @ git+https://github.com/Mleyliabadi/l2rpn-2023-ljn-agent.git
+ExpertAgent @ git+https://github.com/ainetus/T2.1_deep_expert.git
+domain_shift_kpis @ git+https://github.com/ainetus/T4.2_Domain_Shift_KPIs.git
+torch==2.10.0
+stable_baselines==2.7.1
