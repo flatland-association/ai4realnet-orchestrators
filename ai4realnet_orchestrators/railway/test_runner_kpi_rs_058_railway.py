@@ -131,3 +131,4 @@ def mean_punctuality_aggregator(scores):
     n_stops = data[1][data[1] > 0]
     scenario_punctuality = np.divide(n_stops_on_time, n_stops)
     return np.mean(scenario_punctuality)
+
