@@ -15,12 +15,20 @@ Note:
 Author: AI4REALNET Consortium
 """
 
+import sys
 import os
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore")
 os.environ["KMP_WARNINGS"] = "0"
+
+# Add paths for imports
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ORCHESTRATORS_DIR = os.path.dirname(SCRIPT_DIR)  # ai4realnet_orchestrators
+PARENT_DIR = os.path.dirname(ORCHESTRATORS_DIR)  # ai4realnet-orchestrators
+sys.path.insert(0, PARENT_DIR)
+sys.path.insert(0, ORCHESTRATORS_DIR)
 
 from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
     RobustnessResilienceTestRunner,
