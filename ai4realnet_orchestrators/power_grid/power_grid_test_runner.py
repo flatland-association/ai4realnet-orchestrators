@@ -5,8 +5,11 @@ Power Grid Test Runner - Combined KPI Implementations
 This module provides the base TestRunner for Power Grid KPIs and implementations
 for multiple KPI categories.
 
-Base Class:
+Base Classes:
     - PowerGridTestRunner: Template for all Power Grid KPIs
+    - OperationalTestRunner: Generic runner for Operational KPIs (008, 012, 036)
+    - RobustnessResilienceTestRunner: Generic runner for Robustness/Resilience KPIs (069-077)
+    - ReliabilityTestRunner: Generic runner for Reliability KPIs (052, 057)
 
 Operational KPIs (KPI-008, KPI-012, KPI-036):
     - TestRunner_KPI_AF_008_Power_Grid: Assistant alert accuracy
@@ -25,6 +28,16 @@ Resilience KPIs (KPI-074 to KPI-077):
     - TestRunner_KPI_DF_075_Power_Grid: Degradation time
     - TestRunner_KPI_RF_076_Power_Grid: Restorative time
     - TestRunner_KPI_SF_077_Power_Grid: Similarity state to unperturbed situation
+
+Reliability KPIs (KPI-052, KPI-057):
+    - TestRunner_KPI_DF_052_Power_Grid: Domain shift adaptation time
+    - TestRunner_KPI_DF_057_Power_Grid: Domain shift success rate drop (performance drop)
+
+Evaluation Caching:
+    Each category of KPIs (Operational, Reliability, Robustness/Resilience)
+    runs a single comprehensive evaluation that computes multiple metrics.
+    Results are cached by `submission_id` within each runner class to ensure
+    efficiency when multiple KPIs from the same category are evaluated.
 
 Authors: INESC TEC (Robustness/Resilience), AI4REALNET Consortium
 """
@@ -107,7 +120,7 @@ class PowerGridTestRunner(TestRunner):
         # Create shift environment
         # TODO: update scenario_shift_path in path-mapping.json, it's the same as scenario_path for now
         scenario_shift_name = scenario_data["scenario_shift_name"]
-        scenario_shift_path = mapping["scenario_shift_path"][scenario_shift_name]
+        scenario_shift_path = mapping["scenario_path"][scenario_shift_name]
         env_shift = grid2op.make(scenario_shift_path, backend=LightSimBackend())
 
         # Create and load agent
@@ -131,6 +144,7 @@ class PowerGridTestRunner(TestRunner):
         Supported types:
         - RandomAgent: Grid2Op random agent
         - CurriculumAgent: Trained curriculum learning agent
+        - ExpertAgent: Trained expert learning agent
         """
         if agent_type == 'RandomAgent':
             from grid2op.Agent import RandomAgent
@@ -182,20 +196,85 @@ class PowerGridTestRunner(TestRunner):
         return agent
 
     @abstractmethod
-    def getResult(self, env, env_shift, agent) -> dict:
+    def _compute_all_metrics(self, env, env_shift, agent) -> Dict:
         """
-        Compute and return KPI results.
+        Compute all metrics for this category of KPIs.
 
-        Must be implemented by subclasses.
+        Must be implemented by generic subclasses (Operational, Reliability, etc.).
 
         Args:
             env: Grid2Op environment
+            env_shift: Grid2Op shift environment (if applicable)
+            agent: Loaded agent
+
+        Returns:
+            dict containing all computed metrics
+        """
+        pass
+
+    def getResult(self, env, env_shift, agent) -> dict:
+        """
+        Compute and return KPI results using caching.
+
+        This generic implementation handles caching results by submission_id
+        and extracting the specific metric for the current KPI.
+
+        Args:
+            env: Grid2Op environment
+            env_shift: Grid2Op shift environment
             agent: Loaded agent
 
         Returns:
             dict with "primary" key containing the KPI value
         """
-        raise NotImplementedError("This method should be overridden by subclasses.")
+        # Use submission_id for caching
+        cache_key = getattr(self, 'submission_id', 'default')
+
+        # Get KPI info (set by subclasses)
+        kpi_info = getattr(self, 'kpi_info', {
+            "name": "Unknown KPI",
+            "metric_key": None,
+            "description": ""
+        })
+
+        logger.info(
+            f"Running evaluation for {kpi_info['name']}\n"
+            f"  Cache key: {cache_key}"
+        )
+
+        # Check cache - avoid re-running expensive evaluation
+        # Subclasses should define their own _metrics_cache class attribute
+        cache = getattr(self, '_metrics_cache', None)
+        if cache is None:
+            # Fallback to instance cache if class cache not defined
+            if not hasattr(self, '_instance_metrics_cache'):
+                self._instance_metrics_cache = {}
+            cache = self._instance_metrics_cache
+
+        if cache_key not in cache:
+            logger.info(f"Cache miss - running complete evaluation in {self.__class__.__name__}")
+            all_metrics = self._compute_all_metrics(env, env_shift, agent)
+            cache[cache_key] = all_metrics
+            logger.info(f"Cached results for {cache_key}")
+        else:
+            logger.info(f"Cache hit - using existing results for {cache_key}")
+
+        all_metrics = cache[cache_key]
+
+        # Extract KPI-specific value
+        metric_key = kpi_info.get('metric_key')
+        if metric_key is None:
+            logger.error(f"No metric_key defined for test_id {getattr(self, 'test_id', 'unknown')}")
+            return {"primary": 0.0}
+
+        kpi_value = all_metrics.get(metric_key, 0.0)
+
+        logger.info(
+            f"KPI Result: {kpi_info['name']} = {kpi_value}\n"
+            f"  Description: {kpi_info['description']}"
+        )
+
+        return {"primary": float(kpi_value)}
 
 
 # ============================================================================
@@ -282,28 +361,74 @@ def evaluate_operational_kpis(env, agent, nb_scenario: int = 9999) -> dict:
     }
 
 
-class TestRunner_KPI_AF_008_Power_Grid(PowerGridTestRunner):
+# KPI ID to metric mapping for Operational KPIs
+OPERATIONAL_KPI_MAPPING = {
+    # Operational KPIs (Benchmark: 4b0be731-8371-4e4e-a673-b630187b0bb8)
+    "aba10b3f-0d5c-4f90-aec4-69460bbb098b": {
+        "name": "KPI-AF-008: Assistant alert accuracy",
+        "metric_key": "assistant_confidence_score",
+        "description": "Assistant alert accuracy [0-100]"
+    },
+    "ab91af79-ffc3-4da7-916a-6574609dc1b6": {
+        "name": "KPI-CF-012: Carbon intensity",
+        "metric_key": "nres_score",
+        "description": "Carbon intensity [0-100]"
+    },
+    "ae4dcac7-c559-457e-902d-ee35d064bb3f": {
+        "name": "KPI-OF-036: Operation score",
+        "metric_key": "op_score",
+        "description": "Operation score [0-100]"
+    }
+}
+
+
+class OperationalTestRunner(PowerGridTestRunner):
+    """
+    Extended TestRunner for Operational KPIs (008, 012, 036).
+
+    Inherits from PowerGridTestRunner and implements getResult() to run
+    operational evaluation. Results are cached per submission.
+    """
+
+    # Class-level cache: {submission_id: all_metrics_dict}
+    _metrics_cache: Dict[str, Dict] = {}
+
+    def __init__(self, test_id: str, scenario_ids: List[str], benchmark_id: str):
+        """Initialize with KPI-specific configuration."""
+        super().__init__(test_id=test_id, benchmark_id=benchmark_id)
+        self.scenario_ids = scenario_ids
+
+        # Get KPI info from mapping
+        self.kpi_info = OPERATIONAL_KPI_MAPPING.get(test_id, {
+            "name": "Unknown KPI",
+            "metric_key": None,
+            "description": ""
+        })
+
+        logger.info(
+            f"Initialized OperationalTestRunner\n"
+            f"  Test ID: {test_id}\n"
+            f"  KPI: {self.kpi_info['name']}"
+        )
+
+    def _compute_all_metrics(self, env, env_shift, agent) -> Dict:
+        """Evaluate operational KPIs and return all metrics."""
+        return evaluate_operational_kpis(env, agent)
+
+
+class TestRunner_KPI_AF_008_Power_Grid(OperationalTestRunner):
     """KPI-AF-008: Assistant alert accuracy"""
-
-    def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent)
-        return {"primary": scores["assistant_confidence_score"]}
+    pass
 
 
-class TestRunner_KPI_CF_012_Power_Grid(PowerGridTestRunner):
+class TestRunner_KPI_CF_012_Power_Grid(OperationalTestRunner):
     """KPI-CF-012: Carbon intensity"""
-
-    def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent)
-        return {"primary": scores["nres_score"]}
+    pass
 
 
-class TestRunner_KPI_OF_036_Power_Grid(PowerGridTestRunner):
+class TestRunner_KPI_OF_036_Power_Grid(OperationalTestRunner):
     """KPI-OF-036: Operation score"""
-
-    def getResult(self, env, agent) -> dict:
-        scores = evaluate_operational_kpis(env, agent)
-        return {"primary": scores["op_score"]}
+    pass
 
 # ============================================================================
 # Reliability & Domain shift KPIs (052-058 + 090)
@@ -393,56 +518,19 @@ class ReliabilityTestRunner(PowerGridTestRunner):
             f"  KPI: {self.kpi_info['name']}"
         )
     
-    def getResult(self, env, env_shift, agent) -> dict:
-        # Use submission_id for caching (set by parent's init)
-        cache_key = getattr(self, 'submission_id', 'default')
-        
-        logger.info(
-            f"Running evaluation for {self.kpi_info['name']}\n"
-            f"  Cache key: {cache_key}"
-        )
-        
-        # Check cache - avoid re-running expensive evaluation
-        if cache_key not in self._metrics_cache:
-            logger.info("Cache miss - running complete multi-attacker evaluation")
-            all_metrics = evaluate_domain_shift_kpis(env, env_shift, agent)
-            self._metrics_cache[cache_key] = all_metrics
-            logger.info(f"Cached results for {cache_key}")
-        else:
-            logger.info(f"Cache hit - using existing results for {cache_key}")
-        
-        all_metrics = self._metrics_cache[cache_key]
-        
-        # Extract KPI-specific value
-        metric_key = self.kpi_info.get('metric_key')
-        if metric_key is None:
-            logger.error(f"No metric_key defined for test_id {self.test_id}")
-            return {"primary": 0.0}
-        
-        kpi_value = all_metrics.get(metric_key, 0.0)
-        
-        logger.info(
-            f"KPI Result: {self.kpi_info['name']} = {kpi_value}\n"
-            f"  Description: {self.kpi_info['description']}"
-        )
-        
-        return {"primary": float(kpi_value)}
+    def _compute_all_metrics(self, env, env_shift, agent) -> Dict:
+        """Evaluate reliability KPIs and return all metrics."""
+        return evaluate_domain_shift_kpis(env, env_shift, agent)
 
 
-class TestRunner_KPI_DF_052_Power_Grid(PowerGridTestRunner):
+class TestRunner_KPI_DF_052_Power_Grid(ReliabilityTestRunner):
     """KPI-DF-052: Domain shift adaptation time"""
-    
-    def getResult(self, env, env_shift, agent) -> Dict:
-        scores = evaluate_domain_shift_kpis(env, env_shift, agent)
-        return {"primary": scores["adaptation_time"]}
+    pass
 
 
-class TestRunner_KPI_DF_057_Power_Grid(PowerGridTestRunner):
-    """KPI-DF-052: Domain shift Success Rate Drop (performance drop)"""
-    
-    def getResult(self, env, env_shift, agent) -> Dict:
-        scores = evaluate_domain_shift_kpis(env, env_shift, agent)
-        return {"primary": scores["performance_drop"]}
+class TestRunner_KPI_DF_057_Power_Grid(ReliabilityTestRunner):
+    """KPI-DF-057: Domain shift Success Rate Drop (performance drop)"""
+    pass
 
 
 # ============================================================================
@@ -549,88 +637,39 @@ class RobustnessResilienceTestRunner(PowerGridTestRunner):
             f"  KPI: {self.kpi_info['name']}"
         )
     
-    def getResult(self, env, agent) -> dict:
-        """
-        Run multi-attacker evaluation and return KPI-specific result.
-        
-        This method:
-        1. Checks cache for existing results (avoids re-running)
-        2. Runs complete multi-attacker evaluation if not cached
-        3. Returns the specific metric for this KPI
-        
-        Args:
-            env: Grid2Op environment (created by parent class)
-            agent: Loaded defender agent (created by parent class)
-            
-        Returns:
-            dict with "primary" key containing the KPI value
-        """
-        # Use submission_id for caching (set by parent's init)
-        cache_key = getattr(self, 'submission_id', 'default')
-        
-        logger.info(
-            f"Running evaluation for {self.kpi_info['name']}\n"
-            f"  Cache key: {cache_key}"
-        )
-        
-        # Check cache - avoid re-running expensive evaluation
-        if cache_key not in self._metrics_cache:
-            logger.info("Cache miss - running complete multi-attacker evaluation")
-            all_metrics = self._run_complete_evaluation(env, agent)
-            self._metrics_cache[cache_key] = all_metrics
-            logger.info(f"Cached results for {cache_key}")
-        else:
-            logger.info(f"Cache hit - using existing results for {cache_key}")
-        
-        all_metrics = self._metrics_cache[cache_key]
-        
-        # Extract KPI-specific value
-        metric_key = self.kpi_info.get('metric_key')
-        if metric_key is None:
-            logger.error(f"No metric_key defined for test_id {self.test_id}")
-            return {"primary": 0.0}
-        
-        kpi_value = all_metrics.get(metric_key, 0.0)
-        
-        logger.info(
-            f"KPI Result: {self.kpi_info['name']} = {kpi_value}\n"
-            f"  Description: {self.kpi_info['description']}"
-        )
-        
-        return {"primary": float(kpi_value)}
-    
-    def _run_complete_evaluation(self, env, agent) -> Dict:
+    def _compute_all_metrics(self, env, env_shift, agent) -> Dict:
         """
         Run complete multi-attacker evaluation and compute ALL metrics.
-        
+
         Args:
             env: Grid2Op environment
+            env_shift: Shift environment (ignored here)
             agent: Defender agent
-            
+
         Returns:
             Dictionary containing ALL computed metrics for all 9 KPIs
         """
         logger.info(
-            f"Starting complete evaluation\n"
+            f"Starting complete evaluation in {self.__class__.__name__}\n"
             f"  Attackers: {self.ATTACKER_TYPES}\n"
             f"  Episodes: {self.NUM_EPISODES}"
         )
-        
+
         # Import framework modules
         from evaluation_framework.result_getter import result_getter
         from evaluation_framework.metrics import metrics
         from attack_models.Environment import Environment
-        
+
         # Wrap environment for attacker support
         wrapped_env = Environment(env, agent)
-        
+
         # Load attackers
         attackers = self._load_attackers(wrapped_env, agent)
-        
+
         # Run evaluation in temporary directory
         with tempfile.TemporaryDirectory() as temp_dir:
             logger.info(f"Running episodes in: {temp_dir}")
-            
+
             rg = result_getter(
                 env=wrapped_env,
                 defender=agent,
@@ -639,18 +678,18 @@ class RobustnessResilienceTestRunner(PowerGridTestRunner):
                 attackers=attackers
             )
             rg.calculate_metrics()
-            
+
             # Load unperturbed baseline
             with open(os.path.join(temp_dir, "unperturbed.pkl"), "rb") as f:
                 unperturbed_data = pickle.load(f)
-            
+
             # Load and process metrics for each attacker
             metrics_list = []
             for attacker in attackers:
                 pkl_path = os.path.join(temp_dir, attacker.pickle_file)
                 with open(pkl_path, "rb") as f:
                     data_dict = pickle.load(f)
-                
+
                 m = metrics(
                     data_dict,
                     unperturbed_data,
@@ -659,7 +698,7 @@ class RobustnessResilienceTestRunner(PowerGridTestRunner):
                     model_name=attacker.model_name
                 )
                 metrics_list.append(m)
-            
+
             # Aggregate metrics across all attackers
             return self._aggregate_metrics(metrics_list, unperturbed_data)
     
