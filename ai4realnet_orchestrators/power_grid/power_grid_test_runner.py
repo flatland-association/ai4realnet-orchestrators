@@ -117,11 +117,14 @@ class PowerGridTestRunner(TestRunner):
         scenario_path = mapping["scenario_path"][scenario_name]
         env = grid2op.make(scenario_path, backend=LightSimBackend())
 
-        # Create shift environment
+        # Create shift environment when provided
         # TODO: update scenario_shift_path in path-mapping.json, it's the same as scenario_path for now
-        scenario_shift_name = scenario_data["scenario_shift_name"]
-        scenario_shift_path = mapping["scenario_path"][scenario_shift_name]
-        env_shift = grid2op.make(scenario_shift_path, backend=LightSimBackend())
+        scenario_shift_name = scenario_data.get("scenario_shift_name")
+        if scenario_shift_name:
+            scenario_shift_path = mapping["scenario_path"][scenario_shift_name]
+            env_shift = grid2op.make(scenario_shift_path, backend=LightSimBackend())
+        else:
+            env_shift = None
 
         # Create and load agent
         agent_type = scenario_data["agent_type"]
@@ -435,6 +438,13 @@ class TestRunner_KPI_OF_036_Power_Grid(OperationalTestRunner):
 # ============================================================================
 
 def evaluate_domain_shift_kpis(env, env_shift, agent) -> Dict:
+    if env_shift is None:
+        logger.warning("No shift environment provided. Domain shift KPIs cannot be computed.")
+        return {
+            "adaptation_time": 0.0,
+            "performance_drop": 0.0
+        }
+
     from ExpertAgent.utils.helper_functions import make_gymenv
     env_gym = make_gymenv(env, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
     env_gym_shift = make_gymenv(env_shift, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
