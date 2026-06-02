@@ -1,151 +1,143 @@
 """
-Local Test Script for Robustness & Resilience Framework
+Local Test Script for Power Grid KPI Evaluation Framework
 ========================================================
 
-Runs the multi-attacker evaluation framework LOCALLY without the FAB 
-orchestrator. Use for development, debugging, and testing agents before 
-submission.
+Runs Operational, Reliability, and Robustness & Resilience evaluations LOCALLY 
+without the FAB orchestrator. Use for development, debugging, and testing 
+agents before submission.
 
 Usage:
-    python test_local.py
+    python test_local_power_grid_kpis.py
 
 Note: 
     This bypasses Celery/RabbitMQ orchestration. For production, use FAB.
 
-Author: INESC TEC
+Author: AI4REALNET Consortium
 """
 
 import os
-import sys
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore")
 os.environ["KMP_WARNINGS"] = "0"
 
-import zipfile
-import tempfile
-
-# ============================================================
-# PATH SETUP - Must be done BEFORE any imports
-# ============================================================
-
-# Get the directory where this script lives (power_grid folder)
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FRAMEWORK_DIR = os.path.join(SCRIPT_DIR, "framework")
-ORCHESTRATORS_DIR = os.path.dirname(SCRIPT_DIR)  # ai4realnet_orchestrators
-PARENT_DIR = os.path.dirname(ORCHESTRATORS_DIR)  # ai4realnet-orchestrators
-
-# Add paths for imports
-sys.path.insert(0, PARENT_DIR)          # For ai4realnet_orchestrators package
-sys.path.insert(0, ORCHESTRATORS_DIR)   # For base test_runner
-sys.path.insert(0, FRAMEWORK_DIR)       # For attack_models, etc.
-
-# Change working directory to framework so relative paths work
-os.chdir(FRAMEWORK_DIR)
-
-print("=" * 60)
-print("LOCAL TEST - FAB TestRunner")
-print("=" * 60)
-print(f"Working directory: {os.getcwd()}")
-print(f"Framework directory: {FRAMEWORK_DIR}")
-
-# ============================================================
-# NOW we can import (paths are set up)
-# ============================================================
-
 from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
     RobustnessResilienceTestRunner,
-    evaluate_operational_kpis,
-    evaluate_domain_shift_kpis,
     ReliabilityTestRunner,
+    OperationalTestRunner,
+    OPERATIONAL_KPI_MAPPING,
+    RELIABILITY_KPI_MAPPING,
+    ROBUSTNESS_RESILIENCE_KPI_MAPPING
 )
 
-from ExpertAgent.utils.helper_functions import make_gymenv
-from ExpertAgent.ExpertAgent import ExpertAgentRL
-from stable_baselines3.ppo import MlpPolicy
+SUBMISSION_DATA_URL = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/expert-ai4realnet-small.json"
 
 reliability_runner = ReliabilityTestRunner(test_id="855729a4-6729-4ae2-bb8d-443ef4867d94",
                                            scenario_ids=['81f18394-0164-4896-9408-4315bcfcc5e0'], 
                                            benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c")
 
 reliability_runner.init(
-    submission_data_url="https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/expert-ai4realnet-small.json",
+    submission_data_url=SUBMISSION_DATA_URL,
     submission_id="local_test_reliability"
 )
 
+operational_runner = OperationalTestRunner(test_id="ae4dcac7-c559-457e-902d-ee35d064bb3f",
+                                           scenario_ids=['fc090c38-8740-4911-96aa-2defd06f8715'],
+                                           benchmark_id="4b0be731-8371-4e4e-a673-b630187b0bb8")
+operational_runner.init(
+    submission_data_url=SUBMISSION_DATA_URL,
+    submission_id="local_test_operational"
+)
 
-print(f"✅ TestRunner initialized")
+robustness_runner = RobustnessResilienceTestRunner(test_id="1cbb7783-47b4-4289-9abf-27939da69a2f",
+                                                  scenario_ids=['900d5489-2539-4a49-b3fb-3ae2039be92f'],
+                                                  benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d")
+robustness_runner.init(
+    submission_data_url=SUBMISSION_DATA_URL,
+    submission_id="local_test_robustness"
+)
 
-env_path = "/home/almalinux/grid2op-scenario/ai4realnet_small"
-print(f"\n📦 Environment path: {env_path}")
-print(f"   Exists: {os.path.exists(env_path)}")
-
-agent_path = os.path.join(SCRIPT_DIR, "submission", "trained_model", "ExpertAgent", "ai4realnet_small", "PPO_SB3.zip")
-print(f"\n📦 Agent path: {agent_path}")
-print(f"   Exists: {os.path.exists(agent_path)}")
+print(f"✅ Test runners initialized")
 
 try:
-    print(f"\n🔄 Loading agent from zip (local)...")
-    import grid2op
-    from lightsim2grid import LightSimBackend
-    # Create environment
-    if os.path.exists(env_path):
-        env = grid2op.make(env_path, backend=LightSimBackend())
-        env_shift = grid2op.make(env_path, backend=LightSimBackend())
+    # ============================================================
+    # 1. OPERATIONAL KPIs
+    # ============================================================
+    print("\n" + "=" * 60)
+    print("🔄 Running Operational evaluation...")
+    print("=" * 60)
+    operational_runner.run_scenario(
+        scenario_id="fc090c38-8740-4911-96aa-2defd06f8715",
+        submission_id="local_test_operational"
+    )
     
-    # create and load the agent
-    env_gym = make_gymenv(env, obs_attr_to_keep=["rho"], action_space_path="read_from_file", act_to_keep=("set_bus",))
-    model_path = agent_path
-    nn_kwargs = {
-        "policy": MlpPolicy,
-        "env": env_gym,
-        "verbose": True,
-        "learning_rate": 1e-3,
-        "tensorboard_log": model_path,
-        "policy_kwargs": {"net_arch": [800, 1000, 1000, 800]},
-        "device": "auto"
-    }
-    agent = ExpertAgentRL(name="PPO_SB3",
-                            env=env,
-                            action_space=env.action_space,
-                            gymenv=env_gym,
-                            gym_act_space=env_gym.action_space,
-                            gym_obs_space=env_gym.observation_space,
-                            nn_kwargs=nn_kwargs
-                            )
-    agent.load(model_path)
-    
-    print("✅ Agent loaded!")
+    print("\n📈 Operational KPIs Results:")
+    op_cache = OperationalTestRunner._metrics_cache.get("local_test_operational")
+    if op_cache:
+        for kpi_id, info in OPERATIONAL_KPI_MAPPING.items():
+            val = op_cache.get(info['metric_key'], 0.0)
+            print(f"  - {info['name']}: {val:.4f}")
+            print(f"    Description: {info['description']}")
+    else:
+        print("  ⚠️ No operational results found in cache.")
 
-    print("\n🔄 Running Reilability evaluation (this may take a while)...")
-    reliability_result = reliability_runner.run_scenario(
+    # ============================================================
+    # 2. RELIABILITY KPIs
+    # ============================================================
+    print("\n" + "=" * 60)
+    print("🔄 Running Reliability evaluation (Domain Shift)...")
+    print("=" * 60)
+    reliability_runner.run_scenario(
         scenario_id="81f18394-0164-4896-9408-4315bcfcc5e0",
-        submission_id="local-test-adaptation-time"
-    )
-    
-    print("\n" + "=" * 60)
-    print("✅ EVALUATION COMPLETE!")
-    print("=" * 60)
-    print(f"Adaptation time: {reliability_result}")
-
-    reliability_result = reliability_runner.run_scenario(
-        scenario_id="4d2b00cd-447a-4c7e-8cab-863f0402cb67",
-        submission_id="local-test-performance-drop"
+        submission_id="local_test_reliability"
     )
 
-    print("\n" + "=" * 60)
-    print("✅ EVALUATION COMPLETE!")
-    print("=" * 60)
-    print(f"Performance drop: {reliability_result}")
-    
-    # print("\n🔄 Running reliability evaluation (this may take a while)...")
-    # reliability_result = evaluate_domain_shift_kpis(env, env_shift, agent)
+    print("\n📈 Reliability KPIs Results:")
+    rel_cache = ReliabilityTestRunner._metrics_cache.get("local_test_reliability")
+    if rel_cache:
+        for kpi_id, info in RELIABILITY_KPI_MAPPING.items():
+            val = rel_cache.get(info['metric_key'], 0.0)
+            print(f"  - {info['name']}: {val:.4f}")
+            print(f"    Description: {info['description']}")
+    else:
+        print("  ⚠️ No reliability results found in cache.")
 
-    # print("\n" + "=" * 60)
-    # print("✅ EVALUATION COMPLETE!")
-    # print("=" * 60)
-    # print(f"Result: {reliability_result}")
+    # ============================================================
+    # 3. ROBUSTNESS & RESILIENCE KPIs
+    # ============================================================
+    print("\n" + "=" * 60)
+    print("🔄 Running Robustness & Resilience evaluation...")
+    print("=" * 60)
+    robustness_runner.run_scenario(
+        scenario_id="900d5489-2539-4a49-b3fb-3ae2039be92f",
+        submission_id="local_test_robustness"
+    )
+    
+    print("\n📈 Robustness & Resilience KPIs Results:")
+    rob_cache = RobustnessResilienceTestRunner._metrics_cache.get("local_test_robustness")
+    if rob_cache:
+        # Separate Robustness and Resilience for display
+        print("\n  [Robustness]")
+        for kpi_id, info in ROBUSTNESS_RESILIENCE_KPI_MAPPING.items():
+            kpi_num = info['name'].split(':')[0].split('-')[-1]
+            if "074" <= kpi_num <= "077":
+                continue # Skip resilience for now
+            val = rob_cache.get(info['metric_key'], 0.0)
+            print(f"    - {info['name']}: {val:.4f}")
+
+        print("\n  [Resilience]")
+        for kpi_id, info in ROBUSTNESS_RESILIENCE_KPI_MAPPING.items():
+            kpi_num = info['name'].split(':')[0].split('-')[-1]
+            if "074" <= kpi_num <= "077":
+                val = rob_cache.get(info['metric_key'], 0.0)
+                print(f"    - {info['name']}: {val:.4f}")
+    else:
+        print("  ⚠️ No robustness results found in cache.")
+
+    print("\n" + "=" * 60)
+    print("✅ ALL EVALUATIONS COMPLETE!")
+    print("=" * 60)
     
 except Exception as e:
     print(f"\n❌ Error: {e}")
