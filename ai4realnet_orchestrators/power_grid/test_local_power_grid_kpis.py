@@ -15,12 +15,20 @@ Note:
 Author: AI4REALNET Consortium
 """
 
+import sys
 import os
 import warnings
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore")
 os.environ["KMP_WARNINGS"] = "0"
+
+# Add paths for imports
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+ORCHESTRATORS_DIR = os.path.dirname(SCRIPT_DIR)  # ai4realnet_orchestrators
+PARENT_DIR = os.path.dirname(ORCHESTRATORS_DIR)  # ai4realnet-orchestrators
+sys.path.insert(0, PARENT_DIR)
+sys.path.insert(0, ORCHESTRATORS_DIR)
 
 from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
     RobustnessResilienceTestRunner,
@@ -31,14 +39,15 @@ from ai4realnet_orchestrators.power_grid.power_grid_test_runner import (
     ROBUSTNESS_RESILIENCE_KPI_MAPPING
 )
 
-SUBMISSION_DATA_URL = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/expert-ai4realnet-small.json"
+EXPERT_SUBMISSION = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/expert-ai4realnet-small.json"
+CURRICULUM_SUBMISSION = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/curriculum-ai4realnet-small.json"
 
 reliability_runner = ReliabilityTestRunner(test_id="855729a4-6729-4ae2-bb8d-443ef4867d94",
                                            scenario_ids=['81f18394-0164-4896-9408-4315bcfcc5e0'], 
                                            benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c")
 
 reliability_runner.init(
-    submission_data_url=SUBMISSION_DATA_URL,
+    submission_data_url=EXPERT_SUBMISSION,
     submission_id="local_test_reliability"
 )
 
@@ -46,7 +55,7 @@ operational_runner = OperationalTestRunner(test_id="ae4dcac7-c559-457e-902d-ee35
                                            scenario_ids=['fc090c38-8740-4911-96aa-2defd06f8715'],
                                            benchmark_id="4b0be731-8371-4e4e-a673-b630187b0bb8")
 operational_runner.init(
-    submission_data_url=SUBMISSION_DATA_URL,
+    submission_data_url=CURRICULUM_SUBMISSION,
     submission_id="local_test_operational"
 )
 
@@ -54,7 +63,7 @@ robustness_runner = RobustnessResilienceTestRunner(test_id="1cbb7783-47b4-4289-9
                                                   scenario_ids=['900d5489-2539-4a49-b3fb-3ae2039be92f'],
                                                   benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d")
 robustness_runner.init(
-    submission_data_url=SUBMISSION_DATA_URL,
+    submission_data_url=CURRICULUM_SUBMISSION,
     submission_id="local_test_robustness"
 )
 
