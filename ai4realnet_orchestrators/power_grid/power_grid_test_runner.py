@@ -370,17 +370,17 @@ OPERATIONAL_KPI_MAPPING = {
     "aba10b3f-0d5c-4f90-aec4-69460bbb098b": {
         "name": "KPI-AF-008: Assistant alert accuracy",
         "metric_key": "assistant_confidence_score",
-        "description": "Assistant alert accuracy [0-100]"
+        "description": "Assistant alert accuracy"
     },
     "ab91af79-ffc3-4da7-916a-6574609dc1b6": {
         "name": "KPI-CF-012: Carbon intensity",
         "metric_key": "nres_score",
-        "description": "Carbon intensity [0-100]"
+        "description": "Carbon intensity"
     },
     "ae4dcac7-c559-457e-902d-ee35d064bb3f": {
         "name": "KPI-OF-036: Operation score",
         "metric_key": "op_score",
-        "description": "Operation score [0-100]"
+        "description": "Operation score"
     }
 }
 
@@ -484,7 +484,7 @@ def evaluate_domain_shift_kpis(env, env_shift, agent) -> Dict:
 
 # KPI ID to metric mapping
 RELIABILITY_KPI_MAPPING = {
-    # Robustness KPIs (Benchmark: 3810191b-8cfd-4b03-86b2-f7e530aab30d)
+    # Reliability KPIs (Benchmark: 43040944-39ac-47c9-b91d-bc8ca5693b3c)
     "855729a4-6729-4ae2-bb8d-443ef4867d94": {
         "name": "KPI-DF-052: Domain shift adaptation time",
         "metric_key": "adaptation_time",
