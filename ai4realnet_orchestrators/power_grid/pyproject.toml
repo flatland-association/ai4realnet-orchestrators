@@ -15,7 +15,7 @@ dependencies = [
     "pydantic>=2",
     "python-dateutil>=2.8.2",
     # power grid runner dependencies
-    "grid2op==1.10.5",
+    "grid2op[chronix2grid]==1.10.5",
     "lightsim2grid==0.10.3",
     "requests>=2.34.2",
     "requests-oauthlib>=2.0.0",
