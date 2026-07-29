@@ -194,7 +194,7 @@ power_grid_orchestrator = Orchestrator(
 
         # KPI-AF-051: AI-Agent Scalability Testing (Power Grid)
         "1409dbf6-0f66-4570-97df-fda84c46c71d": TestRunner_KPI_AF_051_Power_Grid(
-            test_id="1409dbf6-0f66-4570-97df-fda84c46c71d", scenario_ids=['5950ad04-76e5-4c4d-aa44-435d01d250eb'], benchmark_id="16706c82-75df-4969-932d-a7f5c941eca2"
+            test_id="1409dbf6-0f66-4570-97df-fda84c46c71d", scenario_ids=['547f8244-d091-40da-892d-ee24a26ee29f'], benchmark_id="16706c82-75df-4969-932d-a7f5c941eca2"
         ),
 
         # KPI-DF-052: Domain shift adaptation time (Power Grid)
