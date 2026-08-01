@@ -7,6 +7,7 @@ from ai4realnet_orchestrators.railway.test_runner_kpi_af_051_railway import Test
 from ai4realnet_orchestrators.railway.test_runner_kpi_nf_045_railway import TestRunner_KPI_NF_045_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_pf_026_railway import TestRunner_KPI_PF_026_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_rs_058_railway import TestRunner_KPI_RS_058_Railway
+from ai4realnet_orchestrators.railway.test_runner_kpi_df_016_railway import TestRunner_KPI_DF_016_Railway
 
 railway_orchestrator = Orchestrator(
   test_runners={
@@ -101,10 +102,10 @@ railway_orchestrator = Orchestrator(
     #         test_id="c258c64f-1905-4d7f-93f0-d696c133978e", scenario_ids=['b4c9184c-c0d1-4a0c-bab1-9210bf8cb548'], benchmark_id="65547935-f436-49fa-8d20-f320c6bd46dc"
     #     ),
     #
-    #     # KPI-DF-016: Delay reduction efficiency (Railway)
-    #     "6ff3c588-357c-41a6-a45a-2bd946b158c8": TestRunner_KPI_DF_016_Railway(
-    #         test_id="6ff3c588-357c-41a6-a45a-2bd946b158c8", scenario_ids=['ba7f9aac-5e96-4436-bae1-23629c4d153b'], benchmark_id="3b1bdca6-ed90-4938-bd63-fd657aa7dcd7"
-    #     ),
+    # KPI-DF-016: Delay reduction efficiency (Railway)
+    "6ff3c588-357c-41a6-a45a-2bd946b158c8": TestRunner_KPI_DF_016_Railway(
+        test_id="6ff3c588-357c-41a6-a45a-2bd946b158c8", scenario_ids=['ba7f9aac-5e96-4436-bae1-23629c4d153b'], benchmark_id="3b1bdca6-ed90-4938-bd63-fd657aa7dcd7"
+    ),
     #
 
     # KPI-PF-026: Punctuality (Railway)
