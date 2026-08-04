@@ -2,7 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: v0.19.1
+  flatland-benchmarks-ref: ai4realnet-reduce-scenarios-kpi-nf-045  # revert to v 0.19.1 before merging
 on:
   workflow_dispatch:
   pull_request:
