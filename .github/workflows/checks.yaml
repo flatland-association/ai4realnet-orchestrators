@@ -2,7 +2,9 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  flatland-benchmarks-ref: v0.19.1
+  # TODO revert to a released tag once the ghcr.io image-reuse work on flatland-benchmarks#695 is merged/released
+  flatland-benchmarks-ref: 695-ci-cleanup
+  REGISTRY: ghcr.io/flatland-association
 on:
   workflow_dispatch:
   pull_request:
@@ -50,33 +52,77 @@ jobs:
           python -m pip install -r requirements.txt -r requirements-dev.txt -r ai4realnet_orchestrators/railway/requirements.txt
           pytest -s -m "not integration" ai4realnet_orchestrators/railway
   test-ai4realnet-orchestrator-railway-integration:
+    permissions:
+      contents: read
+      packages: read
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         python-version: [ "3.13" ]
     steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: flatland-association/flatland-benchmarks
+          path: flatland-benchmarks
+          ref: ${{ env.flatland-benchmarks-ref }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Determine image tags and reuse strategy
+        id: images
+        # only fab-backend/fab-frontend: this job never builds fab-flatland3-benchmarks-orchestrator, and
+        # ai4realnet-orchestrator-railway (built from this repo's own Dockerfile) has no ci-<hash>/reuse hook.
+        # unlike flatland-benchmarks' own checks.yml, there's no `needs: build-images` job in this workflow to
+        # check, so existence is determined directly here via `docker manifest inspect` (also covers the case
+        # where the fab-backend/fab-frontend ghcr.io packages aren't readable from this repo's GITHUB_TOKEN —
+        # any failure here, auth or not-found, safely falls back to a local build).
+        working-directory: flatland-benchmarks
+        run: |
+          BACKEND_HASH=$(git ls-files -s -- ts '*.json' .npmrc deployment/backend | git hash-object --stdin)
+          FRONTEND_HASH=$(git ls-files -s -- ts '*.json' .npmrc deployment/frontend | git hash-object --stdin)
+          BACKEND_TAG="${{ env.REGISTRY }}/fab-backend:ci-${BACKEND_HASH}"
+          FRONTEND_TAG="${{ env.REGISTRY }}/fab-frontend:ci-${FRONTEND_HASH}"
+          echo "backend-tag=${BACKEND_TAG}" >> "$GITHUB_OUTPUT"
+          echo "frontend-tag=${FRONTEND_TAG}" >> "$GITHUB_OUTPUT"
+          if docker manifest inspect "${BACKEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${FRONTEND_TAG}" >/dev/null 2>&1; then
+            echo "use-prebuilt=true" >> "$GITHUB_OUTPUT"
+            # image already pulled below under this exact tag; reuse it instead of docker-compose.yml's
+            # default pull_policy of "build" (which would force a rebuild even without --build)
+            echo "pull-policy=missing" >> "$GITHUB_OUTPUT"
+          else
+            echo "use-prebuilt=false" >> "$GITHUB_OUTPUT"
+            echo "pull-policy=build" >> "$GITHUB_OUTPUT"
+          fi
       - name: Inspect disk
         run: |
           df -h
           docker system df
+      # local docker builds are what eat disk space; skip pruning/freeing when reusing pre-built images from ghcr.io
       # https://stackoverflow.com/questions/30604846/docker-complains-about-no-space-left-on-device-how-to-clean-up
       - name: Prune docker system
+        if: steps.images.outputs.use-prebuilt != 'true'
         run: |
           docker system prune --all --force
       # https://www.dzombak.com/blog/2024/09/freeing-disk-space-on-github-actions-runners/
       - name: Free disk space
+        if: steps.images.outputs.use-prebuilt != 'true'
         run: |
           curl -fsSL https://raw.githubusercontent.com/kou/arrow/e49d8ae15583ceff03237571569099a6ad62be32/ci/scripts/util_free_space.sh | bash
       - name: Inspect disk again
         run: |
           df -h
           docker system df
-      - uses: actions/checkout@v6
-        with:
-          repository: flatland-association/flatland-benchmarks
-          path: flatland-benchmarks
-          ref: ${{ env.flatland-benchmarks-ref }}
+      - name: Pull pre-built images
+        if: steps.images.outputs.use-prebuilt == 'true'
+        run: |
+          docker pull ${{ steps.images.outputs.backend-tag }}
+          docker pull ${{ steps.images.outputs.frontend-tag }}
       - name: Debug branch
         working-directory: flatland-benchmarks
         run: |
@@ -93,6 +139,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run tests
         working-directory: flatland-benchmarks/evaluation/ai4realnet_orchestrators
+        env:
+          FAB_BACKEND_IMAGE: ${{ steps.images.outputs.backend-tag }}
+          FAB_FRONTEND_IMAGE: ${{ steps.images.outputs.frontend-tag }}
+          FAB_BACKEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
+          FAB_FRONTEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
+          # this repo's own DockerCompose() fixture call also passes no compose_file_name/-f, so it falls back
+          # to COMPOSE_FILE too, picking up flatland-benchmarks' image/pull_policy switches and GHA cache overlay
+          COMPOSE_FILE: ${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml
         run: |
           python -m pip install -r requirements.txt -r requirements-dev.txt -r ai4realnet_orchestrators/railway/requirements.txt
           export OAUTHLIB_INSECURE_TRANSPORT=1
