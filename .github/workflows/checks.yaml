@@ -137,6 +137,37 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+          # complements (does not replace) the venv cache below: still speeds up whatever pip install
+          # actually runs on a cache-miss day, e.g. re-resolving the floating flatland-rl@main git ref
+          cache: pip
+          cache-dependency-path: |
+            flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements.txt
+            flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements-dev.txt
+            flatland-benchmarks/evaluation/ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt
+      - name: Get date bucket for cache busting
+        # railway/requirements.txt pins flatland-rl to @main (a floating ref, not a commit/tag), so its content
+        # hash alone never changes when upstream main moves; bucketing the cache key by day bounds staleness of
+        # that package to <=24h, matching flatland-benchmarks' own nightly full-rebuild cadence
+        id: date
+        run: echo "date=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+      - name: Restore cached virtualenv
+        id: venv-cache
+        uses: actions/cache@v4
+        with:
+          path: flatland-benchmarks/evaluation/ai4realnet_orchestrators/.venv
+          key: ai4realnet-railway-integration-venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements.txt', 'flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements-dev.txt', 'flatland-benchmarks/evaluation/ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt') }}-${{ steps.date.outputs.date }}
+          restore-keys: |
+            ai4realnet-railway-integration-venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements.txt', 'flatland-benchmarks/evaluation/ai4realnet_orchestrators/requirements-dev.txt', 'flatland-benchmarks/evaluation/ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt') }}-
+      - name: Install ai4realnet Orchestrators Integration Tests Dependencies
+        if: steps.venv-cache.outputs.cache-hit != 'true'
+        working-directory: flatland-benchmarks/evaluation/ai4realnet_orchestrators
+        run: |
+          python -m venv --copies .venv
+          .venv/bin/pip install -r requirements.txt -r requirements-dev.txt -r ai4realnet_orchestrators/railway/requirements.txt
+      # --copies (not the venv default of symlinking) makes the cached venv self-contained, so a restore on a
+      # later run doesn't depend on setup-python's toolcache interpreter still living at the same absolute path
+      - name: Activate cached virtualenv
+        run: echo "${{ github.workspace }}/flatland-benchmarks/evaluation/ai4realnet_orchestrators/.venv/bin" >> "$GITHUB_PATH"
       - name: Run tests
         working-directory: flatland-benchmarks/evaluation/ai4realnet_orchestrators
         env:
@@ -148,6 +179,5 @@ jobs:
           # to COMPOSE_FILE too, picking up flatland-benchmarks' image/pull_policy switches and GHA cache overlay
           COMPOSE_FILE: ${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml
         run: |
-          python -m pip install -r requirements.txt -r requirements-dev.txt -r ai4realnet_orchestrators/railway/requirements.txt
           export OAUTHLIB_INSECURE_TRANSPORT=1
           pytest -s -m integration ai4realnet_orchestrators/railway
