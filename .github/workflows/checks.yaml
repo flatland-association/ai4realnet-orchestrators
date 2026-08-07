@@ -95,9 +95,15 @@ jobs:
             # image already pulled below under this exact tag; reuse it instead of docker-compose.yml's
             # default pull_policy of "build" (which would force a rebuild even without --build)
             echo "pull-policy=missing" >> "$GITHUB_OUTPUT"
+            # this fixture always runs `docker compose build` unconditionally, ignoring pull_policy entirely —
+            # docker-compose.ci-prebuilt.yml !reset-clears build: for these two services so that unconditional
+            # build call has nothing to do for them and just uses the pulled image: as-is. Must stay last: any
+            # later file touching build.* would resurrect a build section with no context/dockerfile.
+            echo "compose-file=${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-prebuilt.yml" >> "$GITHUB_OUTPUT"
           else
             echo "use-prebuilt=false" >> "$GITHUB_OUTPUT"
             echo "pull-policy=build" >> "$GITHUB_OUTPUT"
+            echo "compose-file=${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml" >> "$GITHUB_OUTPUT"
           fi
       - name: Inspect disk
         run: |
@@ -176,8 +182,9 @@ jobs:
           FAB_BACKEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
           FAB_FRONTEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
           # this repo's own DockerCompose() fixture call also passes no compose_file_name/-f, so it falls back
-          # to COMPOSE_FILE too, picking up flatland-benchmarks' image/pull_policy switches and GHA cache overlay
-          COMPOSE_FILE: ${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml
+          # to COMPOSE_FILE too, picking up flatland-benchmarks' image/pull_policy switches and cache/build-skip
+          # overlays (see "Determine image tags and reuse strategy" above)
+          COMPOSE_FILE: ${{ steps.images.outputs.compose-file }}
         run: |
           export OAUTHLIB_INSECURE_TRANSPORT=1
           pytest -s -m integration ai4realnet_orchestrators/railway
