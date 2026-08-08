@@ -85,7 +85,10 @@ jobs:
         # here, auth or not-found, safely falls back to a local build). ai4realnet-orchestrator-railway itself
         # (built from this repo's own Dockerfile) still has no ci-<hash>/reuse hook — only a GHA
         # cache_from/cache_to scope (see docker-compose.ci-cache.yml), so it always rebuilds locally, just
-        # cache-accelerated after the first run.
+        # cache-accelerated after the first run. Existence alone isn't freshness: flatland-benchmarks' own
+        # nightly schedule run force-rebuilds with --no-cache to catch base-image/dependency drift for the
+        # two floating @main refs (flatland-rl, fab-clientlib) baked into the orchestrator-deps image — this
+        # job's own schedule run must skip reuse too, or it'd keep reusing a tag that's never refreshed here.
         working-directory: flatland-benchmarks
         run: |
           BACKEND_HASH=$(git ls-files -s -- ts angular.json package-lock.json package.json release-please-config.json tsconfig.json .npmrc deployment/backend | git hash-object --stdin)
@@ -96,7 +99,7 @@ jobs:
           ORCH_DEPS_TAG="${{ env.REGISTRY }}/fab-flatland3-benchmarks-orchestrator:ci-deps-${ORCH_DEPS_HASH}"
           echo "backend-tag=${BACKEND_TAG}" >> "$GITHUB_OUTPUT"
           echo "frontend-tag=${FRONTEND_TAG}" >> "$GITHUB_OUTPUT"
-          if docker manifest inspect "${BACKEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${FRONTEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${ORCH_DEPS_TAG}" >/dev/null 2>&1; then
+          if [ "${{ github.event_name }}" != "schedule" ] && docker manifest inspect "${BACKEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${FRONTEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${ORCH_DEPS_TAG}" >/dev/null 2>&1; then
             echo "use-prebuilt=true" >> "$GITHUB_OUTPUT"
             # image already pulled below under this exact tag; reuse it instead of docker-compose.yml's
             # default pull_policy of "build" (which would force a rebuild even without --build)
