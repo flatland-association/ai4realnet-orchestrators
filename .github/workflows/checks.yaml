@@ -61,6 +61,11 @@ jobs:
       matrix:
         python-version: [ "3.13" ]
     steps:
+      # required so the local `uses: ./.github/actions/determine-image-reuse-strategy` step below can resolve
+      # its action.yml — a local action reference is always looked up relative to $GITHUB_WORKSPACE, which
+      # nothing else in this job populates (the two checkouts below target other paths: flatland-benchmarks/
+      # and the nested flatland-benchmarks/evaluation/ai4realnet_orchestrators/)
+      - uses: actions/checkout@v6
       - uses: actions/checkout@v6
         with:
           repository: flatland-association/flatland-benchmarks
