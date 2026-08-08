@@ -78,46 +78,18 @@ jobs:
         id: images
         # fab-backend/fab-frontend/flatland3-benchmarks-orchestrator: --profile full (used by this job too)
         # brings up flatland3-benchmarks-orchestrator alongside ai4realnet-orchestrator-railway regardless of
-        # which domain's tests actually run, so it benefits from the same orchestrator-deps reuse. unlike
-        # flatland-benchmarks' own checks.yml, there's no `needs: build-images` job in this workflow to check,
-        # so existence of all three tags is determined directly here via `docker manifest inspect` (also covers
-        # the case where these ghcr.io packages aren't readable from this repo's GITHUB_TOKEN — any failure
-        # here, auth or not-found, safely falls back to a local build). ai4realnet-orchestrator-railway itself
-        # (built from this repo's own Dockerfile) still has no ci-<hash>/reuse hook — only a GHA
-        # cache_from/cache_to scope (see docker-compose.ci-cache.yml), so it always rebuilds locally, just
-        # cache-accelerated after the first run. Existence alone isn't freshness: flatland-benchmarks' own
-        # nightly schedule run force-rebuilds with --no-cache to catch base-image/dependency drift for the
-        # two floating @main refs (flatland-rl, fab-clientlib) baked into the orchestrator-deps image — this
-        # job's own schedule run must skip reuse too, or it'd keep reusing a tag that's never refreshed here.
-        working-directory: flatland-benchmarks
-        run: |
-          BACKEND_HASH=$(git ls-files -s -- ts angular.json package-lock.json package.json release-please-config.json tsconfig.json .npmrc deployment/backend | git hash-object --stdin)
-          FRONTEND_HASH=$(git ls-files -s -- ts angular.json package-lock.json package.json release-please-config.json tsconfig.json .npmrc deployment/frontend | git hash-object --stdin)
-          ORCH_DEPS_HASH=$(git ls-files -s -- evaluation/flatland3_benchmarks/orchestrator/Dockerfile evaluation/flatland3_benchmarks/orchestrator/requirements.txt | git hash-object --stdin)
-          BACKEND_TAG="${{ env.REGISTRY }}/fab-backend:ci-${BACKEND_HASH}"
-          FRONTEND_TAG="${{ env.REGISTRY }}/fab-frontend:ci-${FRONTEND_HASH}"
-          ORCH_DEPS_TAG="${{ env.REGISTRY }}/fab-flatland3-benchmarks-orchestrator:ci-deps-${ORCH_DEPS_HASH}"
-          echo "backend-tag=${BACKEND_TAG}" >> "$GITHUB_OUTPUT"
-          echo "frontend-tag=${FRONTEND_TAG}" >> "$GITHUB_OUTPUT"
-          if [ "${{ github.event_name }}" != "schedule" ] && docker manifest inspect "${BACKEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${FRONTEND_TAG}" >/dev/null 2>&1 && docker manifest inspect "${ORCH_DEPS_TAG}" >/dev/null 2>&1; then
-            echo "use-prebuilt=true" >> "$GITHUB_OUTPUT"
-            # image already pulled below under this exact tag; reuse it instead of docker-compose.yml's
-            # default pull_policy of "build" (which would force a rebuild even without --build)
-            echo "pull-policy=missing" >> "$GITHUB_OUTPUT"
-            echo "orchestrator-deps-tag=${ORCH_DEPS_TAG}" >> "$GITHUB_OUTPUT"
-            # this fixture always runs `docker compose build` unconditionally, ignoring pull_policy entirely —
-            # docker-compose.ci-prebuilt.yml !reset-clears build: for these two services so that unconditional
-            # build call has nothing to do for them and just uses the pulled image: as-is. Must stay last: any
-            # later file touching build.* would resurrect a build section with no context/dockerfile.
-            echo "compose-file=${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-prebuilt.yml" >> "$GITHUB_OUTPUT"
-          else
-            echo "use-prebuilt=false" >> "$GITHUB_OUTPUT"
-            echo "pull-policy=build" >> "$GITHUB_OUTPUT"
-            # leave empty (not the computed ci-deps-<hash> tag) so docker-compose.yml's own ARG default
-            # (:latest) applies instead of a Dockerfile FROM failing to resolve a tag that isn't pushed
-            echo "orchestrator-deps-tag=" >> "$GITHUB_OUTPUT"
-            echo "compose-file=${{ github.workspace }}/flatland-benchmarks/docker-compose.yml:${{ github.workspace }}/flatland-benchmarks/docker-compose.ci-cache.yml" >> "$GITHUB_OUTPUT"
-          fi
+        # which domain's tests actually run, so it benefits from the same orchestrator-deps reuse.
+        # ai4realnet-orchestrator-railway itself (built from this repo's own Dockerfile) still has no
+        # ci-<hash>/reuse hook — only a GHA cache_from/cache_to scope (see docker-compose.ci-cache.yml), so it
+        # always rebuilds locally, just cache-accelerated after the first run. Existence alone isn't freshness:
+        # flatland-benchmarks' own nightly schedule run force-rebuilds with --no-cache to catch
+        # base-image/dependency drift for the two floating @main refs (flatland-rl, fab-clientlib) baked into
+        # the orchestrator-deps image — this job's own schedule run must skip reuse too, or it'd keep reusing a
+        # tag that's never refreshed here.
+        uses: ./.github/actions/determine-image-reuse-strategy
+        with:
+          repo-root: flatland-benchmarks
+          registry: ${{ env.REGISTRY }}
       - name: Inspect disk
         run: |
           df -h
