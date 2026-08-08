@@ -5,6 +5,13 @@ env:
   # TODO revert to a released tag once the ghcr.io image-reuse work on flatland-benchmarks#695 is merged/released
   flatland-benchmarks-ref: 695-ci-cleanup
   REGISTRY: ghcr.io/flatland-association
+  # Must match flatland-benchmarks' checks.yml build-images matrix entries byte-for-byte (that's the single
+  # source of truth there, via YAML anchors) — kept in sync by hand across the two repos, same as the composite
+  # action copies below.
+  backend-hash-paths: &backend-hash-paths "ts .lintstagedrc.json .prettierrc.json .release-please-manifest.json angular.json package-lock.json package.json release-please-config.json tsconfig.json .npmrc deployment/backend"
+  frontend-hash-paths: &frontend-hash-paths "ts .lintstagedrc.json .prettierrc.json .release-please-manifest.json angular.json package-lock.json package.json release-please-config.json tsconfig.json .npmrc deployment/frontend"
+  orchestrator-deps-hash-paths: &orchestrator-deps-hash-paths "evaluation/flatland3_benchmarks/orchestrator/Dockerfile evaluation/flatland3_benchmarks/orchestrator/requirements.txt"
+  railway-deps-hash-paths: &railway-deps-hash-paths "ai4realnet_orchestrators/railway/integrationtests/Dockerfile requirements.txt ai4realnet_orchestrators/railway/requirements.txt"
 on:
   workflow_dispatch:
   pull_request:
@@ -95,6 +102,9 @@ jobs:
         with:
           repo-root: flatland-benchmarks
           registry: ${{ env.REGISTRY }}
+          backend-hash-paths: *backend-hash-paths
+          frontend-hash-paths: *frontend-hash-paths
+          orchestrator-deps-hash-paths: *orchestrator-deps-hash-paths
       - name: Inspect disk
         run: |
           df -h
@@ -114,12 +124,14 @@ jobs:
         run: |
           df -h
           docker system df
+      # each image is pulled independently based on its own pull-policy/tag, not gated on use-prebuilt (which
+      # only means ALL THREE are reused) — so a single still-cached image is pulled and reused even when the
+      # other two need a local rebuild
       - name: Pull pre-built images
-        if: steps.images.outputs.use-prebuilt == 'true'
         run: |
-          docker pull ${{ steps.images.outputs.backend-tag }}
-          docker pull ${{ steps.images.outputs.frontend-tag }}
-          docker pull ${{ steps.images.outputs.orchestrator-deps-tag }}
+          if [ "${{ steps.images.outputs.backend-pull-policy }}" = "missing" ]; then docker pull ${{ steps.images.outputs.backend-tag }}; fi
+          if [ "${{ steps.images.outputs.frontend-pull-policy }}" = "missing" ]; then docker pull ${{ steps.images.outputs.frontend-tag }}; fi
+          if [ -n "${{ steps.images.outputs.orchestrator-deps-tag }}" ]; then docker pull ${{ steps.images.outputs.orchestrator-deps-tag }}; fi
       - name: Debug branch
         working-directory: flatland-benchmarks
         run: |
@@ -136,6 +148,7 @@ jobs:
         with:
           repo-root: flatland-benchmarks/evaluation/ai4realnet_orchestrators
           registry: ${{ env.REGISTRY }}
+          hash-paths: *railway-deps-hash-paths
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:
@@ -176,8 +189,8 @@ jobs:
         env:
           FAB_BACKEND_IMAGE: ${{ steps.images.outputs.backend-tag }}
           FAB_FRONTEND_IMAGE: ${{ steps.images.outputs.frontend-tag }}
-          FAB_BACKEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
-          FAB_FRONTEND_PULL_POLICY: ${{ steps.images.outputs.pull-policy }}
+          FAB_BACKEND_PULL_POLICY: ${{ steps.images.outputs.backend-pull-policy }}
+          FAB_FRONTEND_PULL_POLICY: ${{ steps.images.outputs.frontend-pull-policy }}
           ORCHESTRATOR_DEPS_IMAGE: ${{ steps.images.outputs.orchestrator-deps-tag }}
           # this repo's own DockerCompose() fixture call also passes no compose_file_name/-f, so it falls back
           # to COMPOSE_FILE too, picking up flatland-benchmarks' image/pull_policy switches and cache/build-skip
