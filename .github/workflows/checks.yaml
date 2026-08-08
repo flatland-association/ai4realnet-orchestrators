@@ -84,13 +84,12 @@ jobs:
         # fab-backend/fab-frontend/flatland3-benchmarks-orchestrator: --profile full (used by this job too)
         # brings up flatland3-benchmarks-orchestrator alongside ai4realnet-orchestrator-railway regardless of
         # which domain's tests actually run, so it benefits from the same orchestrator-deps reuse.
-        # ai4realnet-orchestrator-railway itself (built from this repo's own Dockerfile) still has no
-        # ci-<hash>/reuse hook — only a GHA cache_from/cache_to scope (see docker-compose.ci-cache.yml), so it
-        # always rebuilds locally, just cache-accelerated after the first run. Existence alone isn't freshness:
-        # flatland-benchmarks' own nightly schedule run force-rebuilds with --no-cache to catch
-        # base-image/dependency drift for the two floating @main refs (flatland-rl, fab-clientlib) baked into
-        # the orchestrator-deps image — this job's own schedule run must skip reuse too, or it'd keep reusing a
-        # tag that's never refreshed here.
+        # ai4realnet-orchestrator-railway itself (built from this repo's own Dockerfile) has its own separate
+        # reuse hook — see the standalone "Determine ai4realnet-orchestrator-railway deps-image reuse" step
+        # further down. Existence alone isn't freshness: flatland-benchmarks' own nightly schedule run
+        # force-rebuilds from scratch to catch base-image/dependency drift for the two floating @main refs
+        # (flatland-rl, fab-clientlib) baked into the orchestrator-deps image — this job's own schedule run
+        # must skip reuse too, or it'd keep reusing a tag that's never refreshed here.
         uses: ./.github/actions/determine-image-reuse-strategy
         with:
           repo-root: flatland-benchmarks
