@@ -85,8 +85,9 @@ jobs:
         # brings up flatland3-benchmarks-orchestrator alongside ai4realnet-orchestrator-railway regardless of
         # which domain's tests actually run, so it benefits from the same orchestrator-deps reuse.
         # ai4realnet-orchestrator-railway itself (built from this repo's own Dockerfile) has its own separate
-        # reuse hook — see the standalone "Determine ai4realnet-orchestrator-railway deps-image reuse" step
-        # further down. Existence alone isn't freshness: flatland-benchmarks' own nightly schedule run
+        # reuse hook — see the "Determine ai4realnet-orchestrator-railway deps-image reuse" step (a call to the
+        # determine-railway-deps-reuse composite action) further down. Existence alone isn't freshness:
+        # flatland-benchmarks' own nightly schedule run
         # force-rebuilds from scratch to catch base-image/dependency drift for the two floating @main refs
         # (flatland-rl, fab-clientlib) baked into the orchestrator-deps image — this job's own schedule run
         # must skip reuse too, or it'd keep reusing a tag that's never refreshed here.
@@ -131,19 +132,10 @@ jobs:
           path: flatland-benchmarks/evaluation/ai4realnet_orchestrators
       - name: Determine ai4realnet-orchestrator-railway deps-image reuse
         id: railway-deps
-        working-directory: flatland-benchmarks/evaluation/ai4realnet_orchestrators
-        # kept independent of the "Determine image tags and reuse strategy" step above: this image has no
-        # publish workflow of its own (unlike fab-backend/fab-frontend/the orchestrator), so its reuse must
-        # never gate whether those three get reused too — a missing tag here only affects this one build
-        run: |
-          HASH=$(git ls-files -s -- ai4realnet_orchestrators/railway/integrationtests/Dockerfile requirements.txt ai4realnet_orchestrators/railway/requirements.txt | git hash-object --stdin)
-          TAG="${{ env.REGISTRY }}/ai4realnet-orchestrator-railway:ci-deps-${HASH}"
-          if [ "${{ github.event_name }}" != "schedule" ] && docker manifest inspect "${TAG}" >/dev/null 2>&1; then
-            docker pull "${TAG}"
-            echo "image=${TAG}" >> "$GITHUB_OUTPUT"
-          else
-            echo "image=" >> "$GITHUB_OUTPUT"
-          fi
+        uses: ./.github/actions/determine-railway-deps-reuse
+        with:
+          repo-root: flatland-benchmarks/evaluation/ai4realnet_orchestrators
+          registry: ${{ env.REGISTRY }}
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v6
         with:

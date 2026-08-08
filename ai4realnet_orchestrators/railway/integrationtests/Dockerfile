@@ -30,11 +30,12 @@ USER runner
 RUN sudo ls /tmp
 RUN sudo chown -R runner /app
 
-RUN mkdir ai4realnet_orchestrators
-ADD ./evaluation/ai4realnet_orchestrators/requirements.txt ./ai4realnet_orchestrators/requirements.txt
-ADD ./evaluation/ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt ./ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt
+# Copied to a scratch path rather than ./ai4realnet_orchestrators/ (which full's whole-tree ADD below
+# populates fresh) so this stage's narrow, hash-friendly copy isn't redundantly overwritten by identical bytes.
+ADD ./evaluation/ai4realnet_orchestrators/requirements.txt /tmp/deps-requirements/requirements.txt
+ADD ./evaluation/ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt /tmp/deps-requirements/railway-requirements.txt
 
-RUN python -m pip install -U -r ai4realnet_orchestrators/requirements.txt -r ai4realnet_orchestrators/ai4realnet_orchestrators/railway/requirements.txt
+RUN python -m pip install -U -r /tmp/deps-requirements/requirements.txt -r /tmp/deps-requirements/railway-requirements.txt
 
 
 FROM ${RAILWAY_DEPS_IMAGE} AS full
