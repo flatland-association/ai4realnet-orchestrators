@@ -38,7 +38,11 @@ def test_containers_fixture(request):
   start_time_build = time.time()
   build_cmd = list(basic.compose_command_property or [])  # avoid caching
   build_cmd += ["build"]
-  build: CompletedProcess = basic._run_command(cmd=build_cmd)
+  try:
+    build: CompletedProcess = basic._run_command(cmd=build_cmd)
+  except CalledProcessError as e:
+    _print_output(e.stdout.decode(errors="ignore") if e.stdout else "", e.stderr.decode(errors="ignore") if e.stderr else "")
+    raise
   duration_build = time.time() - start_time_build
   logger.info(f"\\ end docker compose build. Took {duration_build:.2f} seconds.")
   _print_output(build.stdout.decode(errors="ignore"), build.stderr.decode(errors="ignore"))
