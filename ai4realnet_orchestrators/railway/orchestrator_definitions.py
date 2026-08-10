@@ -124,7 +124,6 @@ railway_orchestrator = Orchestrator(
             '05eeb2ea-67fe-405e-b630-43f382dbf246', '90071fa0-a560-4c6e-b2ff-fd59588fbdb7'
             ], benchmark_id="3b1bdca6-ed90-4938-bd63-fd657aa7dcd7"
     ),
-    #
 
     # KPI-PF-026: Punctuality (Railway)
     "98ceb866-5479-47e6-a735-81292de8ca65": TestRunner_KPI_PF_026_Railway(
