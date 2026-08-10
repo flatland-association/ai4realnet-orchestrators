@@ -2,8 +2,7 @@ name: Checks
 
 env:
   # DEPENDENCY SWITCH:
-  # TODO revert to a released tag once the ghcr.io image-reuse work on flatland-benchmarks#695 is merged/released
-  flatland-benchmarks-ref: 695-ci-cleanup
+  flatland-benchmarks-ref: main
   REGISTRY: ghcr.io/flatland-association
   # Must match flatland-benchmarks' checks.yml build-images matrix entries byte-for-byte (that's the single
   # source of truth there, via YAML anchors) — kept in sync by hand across the two repos, same as the composite
