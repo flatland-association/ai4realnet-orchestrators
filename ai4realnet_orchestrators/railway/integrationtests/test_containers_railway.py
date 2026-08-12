@@ -147,25 +147,25 @@ def test_runner_kpi_nf_045_railway():
     test_results = test_results.body[0]
 
     assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[N].scorings[0].score == 0.8571428571428572
-    assert test_results.scenario_scorings[N].scorings[1].field_key == "success_rate_1"
-    assert test_results.scenario_scorings[N].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[N].scorings[2].field_key == "punctuality_1"
-    assert test_results.scenario_scorings[N].scorings[2].score == 1.0
-    assert test_results.scenario_scorings[N].scorings[3].field_key == "success_rate_2"
-    assert test_results.scenario_scorings[N].scorings[3].score == 1.0
-    assert test_results.scenario_scorings[N].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[N].scorings[4].score == 0.9285714285714286
+    assert test_results.scenario_scorings[0].scorings[0].score == 0.8571428571428572
+    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[0].scorings[2].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[0].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[0].scorings[4].score == 0.9285714285714286
 
-    assert test_results.scenario_scorings[N].scorings[0].score == 1.0
-    assert test_results.scenario_scorings[N].scorings[1].field_key == "success_rate_1"
-    assert test_results.scenario_scorings[N].scorings[1].score == 0.325
-    assert test_results.scenario_scorings[N].scorings[2].field_key == "punctuality_1"
-    assert test_results.scenario_scorings[N].scorings[2].score == 0.4375
-    assert test_results.scenario_scorings[N].scorings[3].field_key == "success_rate_2"
-    assert test_results.scenario_scorings[N].scorings[3].score == 0.325
-    assert test_results.scenario_scorings[N].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[N].scorings[4].score == 0.4375
+    assert test_results.scenario_scorings[1].scorings[0].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[1].scorings[1].score == 0.325
+    assert test_results.scenario_scorings[1].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[1].scorings[2].score == 0.4375
+    assert test_results.scenario_scorings[1].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[1].scorings[3].score == 0.325
+    assert test_results.scenario_scorings[1].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[1].scorings[4].score == 0.4375
 
     assert test_results.scorings[0].field_key == "network_impact_propagation"
     assert test_results.scorings[0].score == 0.6830357142857143
