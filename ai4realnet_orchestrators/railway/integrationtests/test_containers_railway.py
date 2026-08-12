@@ -147,28 +147,28 @@ def test_runner_kpi_nf_045_railway():
     test_results = test_results.body[0]
 
     assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[0].scorings[0].score == 0.8571428571428572
-    assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
-    assert test_results.scenario_scorings[0].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
-    assert test_results.scenario_scorings[0].scorings[2].score == 0.8571428571428571
-    assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
-    assert test_results.scenario_scorings[0].scorings[3].score == 1.0
-    assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[0].scorings[4].score == 0.8571428571428571
+    assert test_results.scenario_scorings[N].scorings[0].score == 0.8571428571428572
+    assert test_results.scenario_scorings[N].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[N].scorings[1].score == 1.0
+    assert test_results.scenario_scorings[N].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[N].scorings[2].score == 1.0
+    assert test_results.scenario_scorings[N].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[N].scorings[3].score == 1.0
+    assert test_results.scenario_scorings[N].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[N].scorings[4].score == 0.9285714285714286
 
-    assert test_results.scenario_scorings[1].scorings[0].score == 1
-    assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
-    assert test_results.scenario_scorings[1].scorings[1].score == 1.0
-    assert test_results.scenario_scorings[1].scorings[2].field_key == "punctuality_1"
-    assert test_results.scenario_scorings[1].scorings[2].score == 1
-    assert test_results.scenario_scorings[1].scorings[3].field_key == "success_rate_2"
-    assert test_results.scenario_scorings[1].scorings[3].score == 1.0
-    assert test_results.scenario_scorings[1].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[1].scorings[4].score == 1
+    assert test_results.scenario_scorings[N].scorings[0].score == 1.0
+    assert test_results.scenario_scorings[N].scorings[1].field_key == "success_rate_1"
+    assert test_results.scenario_scorings[N].scorings[1].score == 0.325
+    assert test_results.scenario_scorings[N].scorings[2].field_key == "punctuality_1"
+    assert test_results.scenario_scorings[N].scorings[2].score == 0.4375
+    assert test_results.scenario_scorings[N].scorings[3].field_key == "success_rate_2"
+    assert test_results.scenario_scorings[N].scorings[3].score == 0.325
+    assert test_results.scenario_scorings[N].scorings[4].field_key == "punctuality_2"
+    assert test_results.scenario_scorings[N].scorings[4].score == 0.4375
 
     assert test_results.scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scorings[0].score == 0.9285714285714286
+    assert test_results.scorings[0].score == 0.6830357142857143
 
   submission_id = _generic_run(benchmark_id, submission_data_url, task_queue_name, test_id, _verify_kpi_nf_045)
 
@@ -217,7 +217,29 @@ def test_runner_kpi_nf_045_railway():
       f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
       f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
       f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv"}
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv"},
+    'e28dc7e5-03ae-4687-ba37-c7ed5914c901': {
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0602.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0600.pkl",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+    }
   }.items():
     listing = s3.list_objects_v2(
       Bucket='fab-demo-results',
