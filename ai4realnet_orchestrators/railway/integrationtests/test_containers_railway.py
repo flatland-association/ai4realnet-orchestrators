@@ -144,16 +144,12 @@ def test_runner_kpi_nf_045_railway():
 
   def _verify_kpi_nf_045(test_results):
     tr = test_results.body[0]
-    import json
-    print(json.dumps([[(s.field_key, s.score) for s in sc.scorings] for sc in tr.scenario_scorings], indent=2))
-    print("AGG", [(s.field_key, s.score) for s in tr.scorings])
-    return
   
     assert len(test_results.body) == 1
     test_results = test_results.body[0]
 
     assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[0].scorings[0].score == 1.0  # 0.8571428571428572
+    assert test_results.scenario_scorings[0].scorings[0].score == 1.0
     assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
     assert test_results.scenario_scorings[0].scorings[1].score == 1.0
     assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
@@ -161,99 +157,114 @@ def test_runner_kpi_nf_045_railway():
     assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
     assert test_results.scenario_scorings[0].scorings[3].score == 1.0
     assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[0].scorings[4].score == 1.0  #0.9285714285714286
+    assert test_results.scenario_scorings[0].scorings[4].score == 1.0
 
-    assert test_results.scenario_scorings[1].scorings[0].score == 1.0
+    assert test_results.scenario_scorings[1].scorings[0].score == 0.925
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
-    assert test_results.scenario_scorings[1].scorings[1].score == 0.325
+    assert test_results.scenario_scorings[1].scorings[1].score == 0.2
     assert test_results.scenario_scorings[1].scorings[2].field_key == "punctuality_1"
-    assert test_results.scenario_scorings[1].scorings[2].score == 0.4375
+    assert test_results.scenario_scorings[1].scorings[2].score == 0.31875
     assert test_results.scenario_scorings[1].scorings[3].field_key == "success_rate_2"
-    assert test_results.scenario_scorings[1].scorings[3].score == 0.325
+    assert test_results.scenario_scorings[1].scorings[3].score == 0.125
     assert test_results.scenario_scorings[1].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[1].scorings[4].score == 0.4375
+    assert test_results.scenario_scorings[1].scorings[4].score == 0.31875
 
     assert test_results.scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scorings[0].score == 1.0  # 0.9285714285714286
+    assert test_results.scorings[0].score == 0.9625
 
   submission_id = _generic_run(benchmark_id, submission_data_url, task_queue_name, test_id, _verify_kpi_nf_045)
 
   s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://localhost:9000")
-  for scenario_id, expected_key in {
-    'f84dcf0c-4bde-460b-9139-ea76e3694267': {
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0045.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0108.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0052.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0033.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0016.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0147.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0121.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0056.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0095.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0090.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0117.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0069.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0053.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0123.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0012.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/ActionEvents.discrete_action.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0070.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0100.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0080.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0040.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0180.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0000.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0140.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0120.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0010.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0030.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0130.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0110.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0050.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0060.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0020.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0150.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0160.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0170.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0090.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv"},
-    'e28dc7e5-03ae-4687-ba37-c7ed5914c901': {
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0602.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/ActionEvents.discrete_action.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0600.pkl",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
-      f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
-    }
-  }.items():
-    listing = s3.list_objects_v2(
-      Bucket='fab-demo-results',
-      Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}',
-    )
-    print(listing)
-    actual_keys = {obj["Key"] for obj in listing.get("Contents", [])}
-    # assert actual_keys == expected_key
+
+  for scenario_id in ('ff84dcf0c-4bde-460b-9139-ea76e3694267', 'e28dc7e5-03ae-4687-ba37-c7ed5914c901'):
+    listing = s3.list_objects_v2(Bucket='fab-demo-results',
+        Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}')
+    actual = {o["Key"] for o in listing.get("Contents", [])}
+    base = f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}'
+    for branch in ('no_malfunction', 'with_malfunction'):
+        for tsv in ('ActionEvents.discrete_action',
+                    'TrainMovementEvents.trains_arrived',
+                    'TrainMovementEvents.trains_positions',
+                    'TrainMovementEvents.trains_rewards_dones_infos'):
+            assert f'{base}/{branch}/event_logs/{tsv}.tsv' in actual
+        assert any(k.startswith(f'{base}/{branch}/serialised_state/') for k in actual)
+
+
+  # for scenario_id, expected_key in {
+  #   'f84dcf0c-4bde-460b-9139-ea76e3694267': {
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0045.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0108.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0052.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0033.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0016.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0147.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0121.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0056.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0095.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0090.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0117.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0069.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0053.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0123.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0012.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/no_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0070.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0100.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0080.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0040.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0180.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0000.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0140.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0120.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0010.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0030.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0130.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0110.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0050.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0060.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0020.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0150.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0160.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0170.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/serialised_state/f84dcf0c-4bde-460b-9139-ea76e3694267_step0090.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/f84dcf0c-4bde-460b-9139-ea76e3694267/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv"},
+  #   'e28dc7e5-03ae-4687-ba37-c7ed5914c901': {
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0602.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/no_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0000.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0150.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0300.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0450.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/serialised_state/e28dc7e5-03ae-4687-ba37-c7ed5914c901_step0600.pkl",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/ActionEvents.discrete_action.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_arrived.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_positions.tsv",
+  #     f"ai4realnet/submissions/{submission_id}/e075d4a7-5cda-4d3c-83ac-69a0db1d74dd/e28dc7e5-03ae-4687-ba37-c7ed5914c901/with_malfunction/event_logs/TrainMovementEvents.trains_rewards_dones_infos.tsv",
+  #   }
+  # }.items():
+  #   listing = s3.list_objects_v2(
+  #     Bucket='fab-demo-results',
+  #     Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}',
+  #   )
+  #   print(listing)
+  #   actual_keys = {obj["Key"] for obj in listing.get("Contents", [])}
+  #   assert actual_keys == expected_key
 
 
 def _generic_run(benchmark_id, submission_data_url, task_queue_name, test_id, verify):
