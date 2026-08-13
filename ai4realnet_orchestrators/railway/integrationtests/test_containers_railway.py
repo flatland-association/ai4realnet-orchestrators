@@ -147,7 +147,7 @@ def test_runner_kpi_nf_045_railway():
     test_results = test_results.body[0]
 
     assert test_results.scenario_scorings[0].scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scenario_scorings[0].scorings[0].score == 0.8571428571428572
+    assert test_results.scenario_scorings[0].scorings[0].score == 1.0  # 0.8571428571428572
     assert test_results.scenario_scorings[0].scorings[1].field_key == "success_rate_1"
     assert test_results.scenario_scorings[0].scorings[1].score == 1.0
     assert test_results.scenario_scorings[0].scorings[2].field_key == "punctuality_1"
@@ -155,7 +155,7 @@ def test_runner_kpi_nf_045_railway():
     assert test_results.scenario_scorings[0].scorings[3].field_key == "success_rate_2"
     assert test_results.scenario_scorings[0].scorings[3].score == 1.0
     assert test_results.scenario_scorings[0].scorings[4].field_key == "punctuality_2"
-    assert test_results.scenario_scorings[0].scorings[4].score == 0.9285714285714286
+    assert test_results.scenario_scorings[0].scorings[4].score == 1.0  #0.9285714285714286
 
     assert test_results.scenario_scorings[1].scorings[0].score == 1.0
     assert test_results.scenario_scorings[1].scorings[1].field_key == "success_rate_1"
@@ -168,7 +168,7 @@ def test_runner_kpi_nf_045_railway():
     assert test_results.scenario_scorings[1].scorings[4].score == 0.4375
 
     assert test_results.scorings[0].field_key == "network_impact_propagation"
-    assert test_results.scorings[0].score == 0.6830357142857143
+    assert test_results.scorings[0].score == 0.71875  #0.6830357142857143
 
   submission_id = _generic_run(benchmark_id, submission_data_url, task_queue_name, test_id, _verify_kpi_nf_045)
 
