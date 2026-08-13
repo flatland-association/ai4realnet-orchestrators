@@ -176,7 +176,7 @@ def test_runner_kpi_nf_045_railway():
 
   s3 = s3_utils.get_boto_client("minioadmin", "minioadmin", "http://localhost:9000")
 
-  for scenario_id in ('ff84dcf0c-4bde-460b-9139-ea76e3694267', 'e28dc7e5-03ae-4687-ba37-c7ed5914c901'):
+  for scenario_id in ('f84dcf0c-4bde-460b-9139-ea76e3694267', 'e28dc7e5-03ae-4687-ba37-c7ed5914c901'):
     listing = s3.list_objects_v2(Bucket='fab-demo-results',
         Prefix=f'ai4realnet/submissions/{submission_id}/{test_id}/{scenario_id}')
     actual = {o["Key"] for o in listing.get("Contents", [])}
