@@ -42,6 +42,10 @@ from ai4realnet_orchestrators.power_grid.robustness_resilience_test_runner impor
     RobustnessResilienceTestRunner,
     ROBUSTNESS_RESILIENCE_KPI_MAPPING
 )
+from ai4realnet_orchestrators.power_grid.test_runner_kpi_af_051_power_grid import (
+    ScalabilityTestRunner,
+    SCALABILITY_KPI_MAPPING
+)
 
 EXPERT_SUBMISSION = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/expert-ai4realnet-small.json"
 CURRICULUM_SUBMISSION = "https://raw.githubusercontent.com/flatland-association/ai4realnet-orchestrators/refs/heads/milad-merged-powergrid-kpis/ai4realnet_orchestrators/power_grid/configuration/curriculum-ai4realnet-small.json"
@@ -69,6 +73,14 @@ robustness_runner = RobustnessResilienceTestRunner(test_id="1cbb7783-47b4-4289-9
 robustness_runner.init(
     submission_data_url=CURRICULUM_SUBMISSION,
     submission_id="local_test_robustness"
+)
+
+scalability_runner = ScalabilityTestRunner(test_id="1409dbf6-0f66-4570-97df-fda84c46c71d",
+                                           scenario_ids=['547f8244-d091-40da-892d-ee24a26ee29f'],
+                                           benchmark_id="16706c82-75df-4969-932d-a7f5c941eca2")
+scalability_runner.init(
+    submission_data_url=CURRICULUM_SUBMISSION,
+    submission_id="local_test_scalability"
 )
 
 print(f"✅ Test runners initialized")
@@ -147,6 +159,27 @@ try:
                 print(f"    - {info['name']}: {val:.4f}")
     else:
         print("  ⚠️ No robustness results found in cache.")
+
+    # ============================================================
+    # 4. SCALABILITY KPIs
+    # ============================================================
+    print("\n" + "=" * 60)
+    print("🔄 Running Scalability evaluation...")
+    print("=" * 60)
+    scalability_runner.run_scenario(
+        scenario_id="547f8244-d091-40da-892d-ee24a26ee29f",
+        submission_id="local_test_scalability"
+    )
+
+    print("\n📈 Scalability KPIs Results:")
+    scal_cache = ScalabilityTestRunner._metrics_cache.get("local_test_scalability")
+    if scal_cache:
+        for kpi_id, info in SCALABILITY_KPI_MAPPING.items():
+            val = scal_cache.get(info['metric_key'], 0.0)
+            print(f"  - {info['name']}: {val:.4f}")
+            print(f"    Description: {info['description']}")
+    else:
+        print("  ⚠️ No scalability results found in cache.")
 
     print("\n" + "=" * 60)
     print("✅ ALL EVALUATIONS COMPLETE!")
