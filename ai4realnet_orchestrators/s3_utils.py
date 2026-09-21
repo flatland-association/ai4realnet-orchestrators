@@ -25,7 +25,7 @@ class s3_utils:
     return file_target_key
 
   @staticmethod
-  def get_boto_client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY, aws_endpoint_url=AWS_ENDPOINT_URL, **kwargs):
+  def get_boto_client(aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY, aws_endpoint_url=AWS_ENDPOINT_URL):
     if not aws_access_key_id or not aws_secret_access_key:
       raise Exception("AWS Credentials not provided..")
     try:
