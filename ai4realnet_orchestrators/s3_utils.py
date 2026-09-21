@@ -30,10 +30,11 @@ class s3_utils:
       raise Exception("AWS Credentials not provided..")
     try:
       import boto3  # type: ignore
+      from botocore.config import Config
     except ImportError:
       raise Exception(
-        "boto3 is not installed. Please manually install by : ",
-        " pip install -U boto3"
+        "boto3 or botocore is not installed. Please manually install by : ",
+        " pip install -U boto3 botocore"
       )
 
     return boto3.client(
@@ -41,7 +42,11 @@ class s3_utils:
       # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/core/session.html
       endpoint_url=aws_endpoint_url,
       aws_access_key_id=aws_access_key_id,
-      aws_secret_access_key=aws_secret_access_key
+      aws_secret_access_key=aws_secret_access_key,
+      # fix for boto3 >= 1.36.0
+      # https://github.com/boto/boto3/issues/3738
+      # https://github.com/boto/boto3/issues/4400#issuecomment-2600742103
+      config=Config(request_checksum_calculation="when_required", response_checksum_validation="when_required")
     )
 
   @staticmethod
