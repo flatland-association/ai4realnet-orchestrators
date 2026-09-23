@@ -30,7 +30,9 @@ class TestRunner_KPI_AF_051_Railway(AbtractTestRunnerRailway):
 
   def exec(self, generate_policy_args: List[str], scenario_id: str, submission_id: str, subdir: str):
     """Override to time only the simulation, excluding Docker setup overhead."""
-    if DATA_VOLUME:
+    if not RAILWAY_ORCHESTRATOR_RUN_LOCAL:
+      if not DATA_VOLUME or not SCENARIOS_VOLUME:
+        raise RuntimeError("DATA_VOLUME and SCENARIOS_VOLUME must be set when running via Docker")
       # Setup (not timed): mkdir, chmod, pull
       args = ["docker", "run", "--rm", "-v", f"{DATA_VOLUME}:/vol", "alpine:latest", "mkdir", "-p", f"/vol/{subdir}"]
       exec_with_logging(args if not SUDO else ["sudo"] + args)
