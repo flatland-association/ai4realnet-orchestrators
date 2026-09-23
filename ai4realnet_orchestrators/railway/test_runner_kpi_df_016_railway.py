@@ -6,19 +6,19 @@ from flatland.trajectories.trajectories import Trajectory
 
 from ai4realnet_orchestrators.railway.abstract_test_runner_railway import AbtractTestRunnerRailway
 
-
 DATA_VOLUME_MOUNTPATH = os.environ.get("DATA_VOLUME_MOUNTPATH", "/app/data")
 SCENARIOS_VOLUME_MOUNTPATH = os.environ.get("SCENARIOS_VOLUME_MOUNTPATH", "/app/scenarios")
 
 DLA_DATA_URL = "ghcr.io/flatland-association/flatland-baselines-deadlock-avoidance-heuristic:latest"
 DLA_POLICY_ARGS = [
-    "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy",
-    "--policy-cls", "DeadLockAvoidancePolicy",
-    "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation",
-    "--obs-builder-cls", "FullEnvObservation",
+  "--policy-pkg", "flatland_baselines.deadlock_avoidance_heuristic.policy.deadlock_avoidance_policy",
+  "--policy-cls", "DeadLockAvoidancePolicy",
+  "--obs-builder-pkg", "flatland_baselines.deadlock_avoidance_heuristic.observation.full_env_observation",
+  "--obs-builder-cls", "FullEnvObservation",
 ]
 
 logger = logging.getLogger(__name__)
+
 
 # KPI-DF-016: Delay reduction efficiency (Railway)
 class TestRunner_KPI_DF_016_Railway(AbtractTestRunnerRailway):
@@ -45,7 +45,8 @@ class TestRunner_KPI_DF_016_Railway(AbtractTestRunnerRailway):
     data_dir_dla = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/dla_baseline"
     orig_url = self.submission_data_url
     self.submission_data_url = DLA_DATA_URL
-    self.exec(["--data-dir", data_dir_dla] + DLA_POLICY_ARGS + run_args, scenario_id, submission_id, f"{submission_id}/{self.test_id}/{scenario_id}/dla_baseline")
+    self.exec(["--data-dir", data_dir_dla] + DLA_POLICY_ARGS + run_args, scenario_id, submission_id,
+              f"{submission_id}/{self.test_id}/{scenario_id}/dla_baseline")
     self.submission_data_url = orig_url
 
     data_dir_submission = f"{DATA_VOLUME_MOUNTPATH}/{submission_id}/{self.test_id}/{scenario_id}/submission"
@@ -66,18 +67,18 @@ class TestRunner_KPI_DF_016_Railway(AbtractTestRunnerRailway):
     logger.info(f"delay submission: {delay_2}")
 
     if delay_1 == 0:
-        delay_reduction = 1.0 if delay_2 == 0 else 0.0
+      delay_reduction = 1.0 if delay_2 == 0 else 0.0
     else:
-        delay_reduction = max(1 - delay_2 / delay_1, 0)
-    
+      delay_reduction = max(1 - delay_2 / delay_1, 0)
+
     self.upload_and_empty_local(submission_id=submission_id, scenario_id=scenario_id)
-    
+
     return {
       'primary': delay_reduction,
-      'punctuality_1': delay_1,
-      'punctuality_2': delay_2,
-    }  
-    
+      'delay_1': delay_1,
+      'delay_2': delay_2,
+    }
+
   @staticmethod
   def load_scenario_data(scenario_id: str) -> list[str, int]:
     return {
