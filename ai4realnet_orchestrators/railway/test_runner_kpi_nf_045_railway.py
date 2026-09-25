@@ -48,7 +48,7 @@ class TestRunner_KPI_NF_045_Railway(AbtractTestRunnerRailway):
       "--effects-generator-kwargs", "max_num_malfunctions", "1",
       "--effects-generator-kwargs", "min_duration", "20",
       "--effects-generator-kwargs", "max_duration", "50",
-      "--effects-generator-kwargs", "malfunction_rate", "1.0",
+      "--effects-generator-kwargs", "malfunction_rate", "inf",
       "--effects-generator-kwargs", "condition_pkg", "flatland.envs.malfunction_effects_generators",
       "--effects-generator-kwargs", "condition_cls", "on_map_state_condition",
       "--ep-id", scenario_id,
