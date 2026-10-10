@@ -4,10 +4,10 @@
 from ai4realnet_orchestrators.orchestrator import Orchestrator
 from ai4realnet_orchestrators.railway.test_runner_kpi_af_029_railway import TestRunner_KPI_AF_029_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_af_051_railway import TestRunner_KPI_AF_051_Railway
+from ai4realnet_orchestrators.railway.test_runner_kpi_df_016_railway import TestRunner_KPI_DF_016_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_nf_045_railway import TestRunner_KPI_NF_045_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_pf_026_railway import TestRunner_KPI_PF_026_Railway
 from ai4realnet_orchestrators.railway.test_runner_kpi_rs_058_railway import TestRunner_KPI_RS_058_Railway
-from ai4realnet_orchestrators.railway.test_runner_kpi_df_016_railway import TestRunner_KPI_DF_016_Railway
 
 railway_orchestrator = Orchestrator(
   test_runners={
@@ -104,25 +104,16 @@ railway_orchestrator = Orchestrator(
     #
     # KPI-DF-016: Delay reduction efficiency (Railway)
     "6ff3c588-357c-41a6-a45a-2bd946b158c8": TestRunner_KPI_DF_016_Railway(
-        test_id="6ff3c588-357c-41a6-a45a-2bd946b158c8", scenario_ids=[
-            'bb6302f1-0dc2-43ed-976b-4e5d3126006a', 'ac3d32bf-2694-4405-953b-01849e7923ef', '02e163b8-d8a3-44cb-9fb0-65501dfa35b7', 
-            '7a3ae3eb-b783-44a3-80d4-aa9cb0bd55fb', '01a82553-8d2c-4f84-94df-ccb9f3250734', 'db614cef-8b86-467d-a638-64c25a91ec78', 
-            '3b68eeb2-96f6-4a87-8a2f-5decaf3cb3f0', '7277b987-4cc2-4cb5-a308-bb226c832747', '2b4b92d2-6871-4c20-ad58-11dc51718379', 
-            'e5968696-5497-496b-8fe4-f40a837f7129', '9b603e03-3e2e-4366-8127-96307d3b2ce1', '51081d92-2ff1-40a4-b557-38215c125051', 
-            '5832961b-942f-4d33-8614-c6dd4861ef46', 'e15fa3d0-0da3-4513-a5bd-6082806039a3', '45b93b12-57cc-40ff-b277-82de8ceaec32', 
-            '9ae1a2b5-fe89-4027-b1d8-8c3888862a5e', '7b42a1cc-ce70-4d9a-804f-ac9027a1ee48', 'b30319f8-8953-4433-80b6-5b80c9103bc5', 
-            '25f59eeb-3baf-4668-bdb1-2beb577fbf73', 'a35f5412-b565-4f24-9459-eb9ac1f7fe30', 'f262ffb3-86b9-4db8-8657-f4a96915cb83', 
-            'fec35ca6-d093-4081-8cf1-2f3b8f445bed', '14a20672-ea9c-4205-961a-4f2a3585eea2', '63b933c7-b63c-4ab7-b602-69aa5f91aec9', 
-            '4223ef16-0a01-404d-8024-5a656203d3f8', '59b4935d-cc5d-4792-a395-770bae030d2d', '10ee5c39-9ae9-4e58-bdc8-8a449887574d', 
-            'dc4da56a-bf2d-4351-b280-d418736844de', 'd4b12805-017e-46d9-8fe7-220569a21477', '6acbd77e-18a8-41c9-af81-1ff0ac1a9b0f', 
-            'a7a37c14-b2a7-471c-9ed2-af90ee502d39', '626f428b-0928-48c8-8770-12de6e3b18ed', 'd238a30f-2f16-4e12-83a6-fcf779cd7115', 
-            'ac06a723-e801-470d-991d-b4411368ccfe', '9eb9657e-5c48-461a-a680-7fae151f6800', '1667a5c9-ae17-4628-ba55-74e34cb04332', 
-            '2bb4384c-1119-4756-a2ad-fc2e5c00f952', 'c6ea3dff-9cda-471d-bf8b-a576b17036bb', '03ffcc01-b691-406f-ac53-5d13e9328175', 
-            '119b0c6b-4ce6-4a7f-b49b-ec904577a182', 'f3ee3bb9-3328-450a-98fb-63692042134f', '6c90d7a4-980f-4e13-856c-13117e2edf82', 
-            'f7509133-3083-4454-a963-95302eb66764', 'bf4447a8-9e3e-4b8c-b9ea-4bc5bb009977', 'd271e605-1b68-4609-884c-0e6b2417980a', 
-            '7dd80b01-99c3-4a89-9b4b-f4c878a6d996', 'f9b8c0b3-0968-4324-9b92-35063c49def2', '84db3ada-efe4-4cf7-bf05-3f14bbe2c668', 
-            '05eeb2ea-67fe-405e-b630-43f382dbf246', '90071fa0-a560-4c6e-b2ff-fd59588fbdb7'
-            ], benchmark_id="3b1bdca6-ed90-4938-bd63-fd657aa7dcd7"
+      test_id="6ff3c588-357c-41a6-a45a-2bd946b158c8",
+      scenario_ids=['bb6302f1-0dc2-43ed-976b-4e5d3126006a', '02e163b8-d8a3-44cb-9fb0-65501dfa35b7', '01a82553-8d2c-4f84-94df-ccb9f3250734',
+                    '3b68eeb2-96f6-4a87-8a2f-5decaf3cb3f0', '2b4b92d2-6871-4c20-ad58-11dc51718379', '9b603e03-3e2e-4366-8127-96307d3b2ce1',
+                    '5832961b-942f-4d33-8614-c6dd4861ef46', '45b93b12-57cc-40ff-b277-82de8ceaec32', '7b42a1cc-ce70-4d9a-804f-ac9027a1ee48',
+                    '25f59eeb-3baf-4668-bdb1-2beb577fbf73', 'f262ffb3-86b9-4db8-8657-f4a96915cb83', '14a20672-ea9c-4205-961a-4f2a3585eea2',
+                    '4223ef16-0a01-404d-8024-5a656203d3f8', '10ee5c39-9ae9-4e58-bdc8-8a449887574d', 'd4b12805-017e-46d9-8fe7-220569a21477',
+                    'a7a37c14-b2a7-471c-9ed2-af90ee502d39', 'd238a30f-2f16-4e12-83a6-fcf779cd7115', '9eb9657e-5c48-461a-a680-7fae151f6800',
+                    '2bb4384c-1119-4756-a2ad-fc2e5c00f952', '03ffcc01-b691-406f-ac53-5d13e9328175', 'f3ee3bb9-3328-450a-98fb-63692042134f',
+                    'f7509133-3083-4454-a963-95302eb66764', 'd271e605-1b68-4609-884c-0e6b2417980a', 'f9b8c0b3-0968-4324-9b92-35063c49def2',
+                    '05eeb2ea-67fe-405e-b630-43f382dbf246'], benchmark_id="3b1bdca6-ed90-4938-bd63-fd657aa7dcd7"
     ),
 
     # KPI-PF-026: Punctuality (Railway)
@@ -302,28 +293,28 @@ railway_orchestrator = Orchestrator(
     #         test_id="511f2ab0-da90-4d55-a23f-af5eda0baf7d", scenario_ids=['cf7bb259-0ad4-4454-a9c8-eb8add0bec57'], benchmark_id="43040944-39ac-47c9-b91d-bc8ca5693b3c"
     #     ),
     #
-        # KPI-RS-058: Robustness to operator input (Railway)
-        "1cbf44c3-0c82-4f9e-9857-c7c1d96d3ab9": TestRunner_KPI_RS_058_Railway(
-            test_id="1cbf44c3-0c82-4f9e-9857-c7c1d96d3ab9", scenario_ids=[
-                "5a60713d-01f2-4d32-9867-21904629e254", "0db72a40-43e8-477b-89b3-a7bd1224660a", "7def3118-2e9c-4de7-8d61-f0e76fbeee5d", 
-                "3ae60635-6995-4fb1-8309-61fded3d6fd8", "eeef8445-723d-4740-b89f-4dbaf75f9ae6", "94af1ed1-3686-4a9e-99f5-3a7ad908f125", 
-                "8250d0e2-700e-4051-85c3-a8d0d95a5f0f", "c58759a7-a64a-4cbf-970b-948bae0c2254", "f94f517f-c0a4-4415-b726-186cdc75f9c6", 
-                "c0e2c3e0-c171-48dd-a312-5de070e3f937", "6fc5f67a-40fa-45ce-819e-35a85e08e560", "66bce513-502c-43b4-a155-8a16c410a7c6", 
-                "eff645bf-7ea8-490d-ae8a-ebb0d16a774c", "8397e6d6-babc-469b-a239-7eabcbd510da", "c359f13c-d222-4b04-ad0a-2bb30fb9da5f", 
-                "97203764-6717-4ca6-bae9-c35c4eb38206", "adc4bf52-096c-4369-a85f-c9bf4b86bc64", "72f93d48-ecef-4bf7-9d97-cb008b47e566", 
-                "b470667b-d9c9-4af4-b64e-c32102c34387", "4aa9e1b8-8669-466e-b4b9-c7db2a098bec", "8b308495-7ea6-4ddc-acb4-56eb5b3aec12", 
-                "a8f69dc4-04a1-434a-ad97-27c745561b6a", "8b244f56-50e1-411a-a7d8-a2b89dfab26e", "8e6419c1-6470-4272-9c4b-43d9fe19dd3d", 
-                "ec503b6e-3682-4dcd-9dc7-b194b67283d9", "74fd9eab-d2e5-4222-8656-81fc2dde7c21", "c16e54c1-33b2-45b8-95b0-33cc4f5400d5", 
-                "c80effec-27b8-4103-b726-344a85f35407", "9bec9335-3dd5-4d88-b2ac-c5d711bcab36", "4a067d3c-75e6-4e91-a42d-cdf291016674", 
-                "a5dff3c8-902e-4cb9-8466-d277d0ed4d67", "aca25feb-6254-40b3-8d40-3c805797c69b", "deb21442-0f94-4ff3-b78d-8d418415d646", 
-                "6cf2cc89-d30e-4063-bced-051f3cdae92f", "84bcbff5-346f-452c-87ab-08ceff6364f2", "9acbe68e-2a45-420b-a142-34996dbcfb83", 
-                "42786e4c-c80e-40f5-8237-bafc5f39979d", "242a6240-b62c-48b4-a264-b6737e893fa5", "3c38a1d3-2340-43ed-ac0b-4b76c6588b92", 
-                "b89daede-405b-411a-a02b-ee32d7c9d020", "9e0aac9e-ddf9-4575-bf1c-d08a923e15fa", "befa97fb-2a74-4f2e-91c8-ea2879d08dcf", 
-                "0cc18965-c967-4b58-ac7f-38a443b4cd16", "d0f62f51-5a51-443b-bf7b-18e3d5b191dc", "c2ebb179-0a2d-4e84-95be-2837be406716", 
-                "3ac76f3c-f560-4666-af61-c693e4cd3ad4", "484bbf93-bc67-4726-8b81-6c4ab608c861", "11b19a5f-4d61-4b5d-980c-98cf0c16906a", 
-                "edecaeb7-53d3-411a-a00c-2ce6226fde50", "a43cb746-fa63-4d39-87cd-43a81fbf3a8e"
-                ], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
-        ),
+    # KPI-RS-058: Robustness to operator input (Railway)
+    "1cbf44c3-0c82-4f9e-9857-c7c1d96d3ab9": TestRunner_KPI_RS_058_Railway(
+      test_id="1cbf44c3-0c82-4f9e-9857-c7c1d96d3ab9", scenario_ids=[
+        "5a60713d-01f2-4d32-9867-21904629e254", "0db72a40-43e8-477b-89b3-a7bd1224660a", "7def3118-2e9c-4de7-8d61-f0e76fbeee5d",
+        "3ae60635-6995-4fb1-8309-61fded3d6fd8", "eeef8445-723d-4740-b89f-4dbaf75f9ae6", "94af1ed1-3686-4a9e-99f5-3a7ad908f125",
+        "8250d0e2-700e-4051-85c3-a8d0d95a5f0f", "c58759a7-a64a-4cbf-970b-948bae0c2254", "f94f517f-c0a4-4415-b726-186cdc75f9c6",
+        "c0e2c3e0-c171-48dd-a312-5de070e3f937", "6fc5f67a-40fa-45ce-819e-35a85e08e560", "66bce513-502c-43b4-a155-8a16c410a7c6",
+        "eff645bf-7ea8-490d-ae8a-ebb0d16a774c", "8397e6d6-babc-469b-a239-7eabcbd510da", "c359f13c-d222-4b04-ad0a-2bb30fb9da5f",
+        "97203764-6717-4ca6-bae9-c35c4eb38206", "adc4bf52-096c-4369-a85f-c9bf4b86bc64", "72f93d48-ecef-4bf7-9d97-cb008b47e566",
+        "b470667b-d9c9-4af4-b64e-c32102c34387", "4aa9e1b8-8669-466e-b4b9-c7db2a098bec", "8b308495-7ea6-4ddc-acb4-56eb5b3aec12",
+        "a8f69dc4-04a1-434a-ad97-27c745561b6a", "8b244f56-50e1-411a-a7d8-a2b89dfab26e", "8e6419c1-6470-4272-9c4b-43d9fe19dd3d",
+        "ec503b6e-3682-4dcd-9dc7-b194b67283d9", "74fd9eab-d2e5-4222-8656-81fc2dde7c21", "c16e54c1-33b2-45b8-95b0-33cc4f5400d5",
+        "c80effec-27b8-4103-b726-344a85f35407", "9bec9335-3dd5-4d88-b2ac-c5d711bcab36", "4a067d3c-75e6-4e91-a42d-cdf291016674",
+        "a5dff3c8-902e-4cb9-8466-d277d0ed4d67", "aca25feb-6254-40b3-8d40-3c805797c69b", "deb21442-0f94-4ff3-b78d-8d418415d646",
+        "6cf2cc89-d30e-4063-bced-051f3cdae92f", "84bcbff5-346f-452c-87ab-08ceff6364f2", "9acbe68e-2a45-420b-a142-34996dbcfb83",
+        "42786e4c-c80e-40f5-8237-bafc5f39979d", "242a6240-b62c-48b4-a264-b6737e893fa5", "3c38a1d3-2340-43ed-ac0b-4b76c6588b92",
+        "b89daede-405b-411a-a02b-ee32d7c9d020", "9e0aac9e-ddf9-4575-bf1c-d08a923e15fa", "befa97fb-2a74-4f2e-91c8-ea2879d08dcf",
+        "0cc18965-c967-4b58-ac7f-38a443b4cd16", "d0f62f51-5a51-443b-bf7b-18e3d5b191dc", "c2ebb179-0a2d-4e84-95be-2837be406716",
+        "3ac76f3c-f560-4666-af61-c693e4cd3ad4", "484bbf93-bc67-4726-8b81-6c4ab608c861", "11b19a5f-4d61-4b5d-980c-98cf0c16906a",
+        "edecaeb7-53d3-411a-a00c-2ce6226fde50", "a43cb746-fa63-4d39-87cd-43a81fbf3a8e"
+      ], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
+    ),
     #
     #     # KPI-DF-069: Drop-off in reward (Railway)
     #     "a94c858e-4bc3-4d67-bd78-5c81506e39f7": TestRunner_KPI_DF_069_Railway(
