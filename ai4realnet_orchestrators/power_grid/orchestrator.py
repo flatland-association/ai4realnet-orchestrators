@@ -31,6 +31,11 @@ from ai4realnet_orchestrators.power_grid.robustness_resilience_test_runner impor
 
 from ai4realnet_orchestrators.power_grid.test_runner_kpi_rs_058_power_grid import TestRunner_KPI_RS_058_Power_Grid
 
+from ai4realnet_orchestrators.power_grid.xai_faithfulness_robustness_test_runner import (
+    TestRunner_KPI_EF_086_Power_Grid,
+    TestRunner_KPI_EF_087_Power_Grid
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -270,15 +275,15 @@ power_grid_orchestrator = Orchestrator(
         #     test_id="95ba1e9a-8d72-4c0e-9526-7676f70ff067", scenario_ids=['a999eb93-2efe-4f73-a2d8-eab51f158ae8'], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
         # ),
         #
-        # # KPI-EF-086: Explainability Robustness (Power Grid)
-        # "89919375-8b53-4e3f-8382-a97e0af7eb56": TestRunner_KPI_EF_086_Power_Grid(
-        #     test_id="89919375-8b53-4e3f-8382-a97e0af7eb56", scenario_ids=['e36d1ef8-939c-4cd8-a660-0a224ce24aa0'], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
-        # ),
-        #
-        # # KPI-EF-087: Explainability Faithfulness (Power Grid)
-        # "ce7d0394-1aa0-41c2-84b7-dfcfe006eb8b": TestRunner_KPI_EF_087_Power_Grid(
-        #     test_id="ce7d0394-1aa0-41c2-84b7-dfcfe006eb8b", scenario_ids=['53b0db0e-7092-455b-9e2c-327ee017f776'], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
-        # ),
+        # KPI-EF-086: Explainability Robustness (Power Grid)
+        "89919375-8b53-4e3f-8382-a97e0af7eb56": TestRunner_KPI_EF_086_Power_Grid(
+            test_id="89919375-8b53-4e3f-8382-a97e0af7eb56", scenario_ids=['e36d1ef8-939c-4cd8-a660-0a224ce24aa0'], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
+        ),
+
+        # KPI-EF-087: Explainability Faithfulness (Power Grid)
+        "ce7d0394-1aa0-41c2-84b7-dfcfe006eb8b": TestRunner_KPI_EF_087_Power_Grid(
+            test_id="ce7d0394-1aa0-41c2-84b7-dfcfe006eb8b", scenario_ids=['53b0db0e-7092-455b-9e2c-327ee017f776'], benchmark_id="3810191b-8cfd-4b03-86b2-f7e530aab30d"
+        ),
 
         # KPI-AF-074: Area between reward curves (Power Grid)
         "534f5a1f-7115-48a5-b58c-4deb044d425d": TestRunner_KPI_AF_074_Power_Grid(
