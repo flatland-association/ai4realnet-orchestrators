@@ -3,3 +3,16 @@
 pandas<3
 # TODO use versioned dependency instead of branch
 git+https://github.com/flatland-association/flatland-rl.git@main
+
+# additional requirements for the robustness/resilience KPIs (069-077)
+# see README_robustness_resilience_kpi_069_077.md
+# numpy
+scipy
+matplotlib
+# Needed by the PPO, SAC and RLPerturb attackers. Without torch they do not fail: they
+# fall back to uniform-random action selection -- PPO and SAC then emit identical action
+# sequences -- and their KPI values would still be reported as if measured. CPU-only
+# wheel, because the orchestrator has no GPU and the default PyPI wheel pulls the whole
+# CUDA runtime (nvidia-*, ~2.5 GB) into the image for nothing.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.6.0+cpu
