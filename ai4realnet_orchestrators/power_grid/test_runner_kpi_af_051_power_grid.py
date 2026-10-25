@@ -23,11 +23,13 @@ class ScalabilityTestRunner(PowerGridTestRunner):
     of increasing size (n_sub / n_line).
     """
 
-    # Class-level cache: {submission_id: all_metrics_dict}
-    _metrics_cache: Dict[str, Dict] = {}
-
     # Specific KPI mapping for this category
     KPI_MAPPING = SCALABILITY_KPI_MAPPING
+
+    def getResult(self, env, env_shift, agent) -> Dict:
+        """Timing depends on the scenario, so every scenario is measured instead of reusing the per-submission cache."""
+        metrics = self._compute_all_metrics(env, env_shift, agent)
+        return {"primary": float(metrics[self.kpi_info["metric_key"]])}
 
     def _compute_all_metrics(self, env, env_shift, agent) -> Dict:
         """Run a single episode and return the timing metrics."""
@@ -41,7 +43,7 @@ class ScalabilityTestRunner(PowerGridTestRunner):
         total_time_seconds = time.perf_counter() - start
 
         # time spent in the backend's powerflow computation, not attributable to the agent
-        powerflow_time = env._time_powerflow
+        powerflow_time = getattr(env, "_time_powerflow", float("nan"))
 
         metrics = {
             "avg_time_per_timestep": total_time_seconds / num_timesteps if num_timesteps else 0.0,
