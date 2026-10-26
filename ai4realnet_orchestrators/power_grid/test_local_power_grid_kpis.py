@@ -229,16 +229,15 @@ try:
     print("\n" + "=" * 60)
     print("🔄 Running Scalability evaluation...")
     print("=" * 60)
-    scalability_runner.run_scenario(
+    scalability_result = scalability_runner.run_scenario(
         scenario_id="547f8244-d091-40da-892d-ee24a26ee29f",
         submission_id="local_test_scalability"
     )
 
     print("\n📈 Scalability KPIs Results:")
-    scal_cache = ScalabilityTestRunner._metrics_cache.get("local_test_scalability")
-    if scal_cache:
+    if scalability_result:
         for kpi_id, info in SCALABILITY_KPI_MAPPING.items():
-            val = scal_cache.get(info['metric_key'], 0.0)
+            val = scalability_result.get("primary", 0.0)
             print(f"  - {info['name']}: {val:.4f}")
             print(f"    Description: {info['description']}")
     else:
