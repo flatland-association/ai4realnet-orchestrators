@@ -6,7 +6,7 @@ This module implements **10 KPIs** for evaluating AI agent robustness and resili
 
 **Author:** INESC TEC
 **Test Runner:** `test_runner_robustness_resilience_kpi_069_077.py`
-**Local runner:** `test_local_robustness_resilience_kpi_069_077.py`
+**Local runner:** `run_local_robustness_resilience_kpi_069_077.py`
 
 ---
 
@@ -108,7 +108,7 @@ railway/
 ├── orchestrator.py                                   # Celery orchestrator
 ├── orchestrator_definitions.py                       # KPI UUID -> TestRunner wiring
 ├── test_runner_robustness_resilience_kpi_069_077.py  # These KPIs implementation
-├── test_local_robustness_resilience_kpi_069_077.py   # Local runner (no FAB)
+├── run_local_robustness_resilience_kpi_069_077.py   # Local runner (no FAB)
 ├── README_robustness_resilience_kpi_069_077.md       # This documentation
 └── framework/
     ├── agent.zip                                     # Reference agent (see below)
@@ -188,13 +188,13 @@ LICENSE.maze-flatland      MIT licence, (c) 2025 EnliteAI GmbH
 cd ai4realnet_orchestrators/railway
 
 # The bundled reference agent, 5 episodes, report KPI-VF-073
-python test_local_robustness_resilience_kpi_069_077.py --agent framework/agent.zip
+python run_local_robustness_resilience_kpi_069_077.py --agent framework/agent.zip
 
 # Any KPI, more episodes, print all 10 values from the single run
-python test_local_robustness_resilience_kpi_069_077.py --kpi KPI-FF-070 --episodes 50 --all
+python run_local_robustness_resilience_kpi_069_077.py --kpi KPI-FF-070 --episodes 50 --all
 
 # Your own submission
-python test_local_robustness_resilience_kpi_069_077.py --agent path/to/agent.pkl --all
+python run_local_robustness_resilience_kpi_069_077.py --agent path/to/agent.pkl --all
 ```
 
 A 50-episode run against the reference agent takes roughly 5 minutes, followed by the per-episode plots (`episodes x attackers x 2` SVG files), which dominate the wall time.

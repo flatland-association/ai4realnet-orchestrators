@@ -7,13 +7,13 @@ orchestrator. Use for development, debugging, and testing agents before
 submission.
 
 Usage:
-    python test_local_robustness_resilience_kpi_069_077.py
+    python run_local_robustness_resilience_kpi_069_077.py
 
     # or pick a KPI and a number of episodes:
-    python test_local_robustness_resilience_kpi_069_077.py --kpi KPI-FF-070 --episodes 10
+    python run_local_robustness_resilience_kpi_069_077.py --kpi KPI-FF-070 --episodes 10
 
     # or evaluate your own submission instead of the built-in baseline:
-    python test_local_robustness_resilience_kpi_069_077.py --agent path/to/agent.pkl
+    python run_local_robustness_resilience_kpi_069_077.py --agent path/to/agent.pkl
 
 Agent formats accepted by --agent:
     *.pkl  a pickled RailwayDefender, or a policy exposing act_many(handles, obs_list)
