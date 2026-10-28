@@ -126,7 +126,11 @@ class TestRunner_KPI_AF_051_Railway(AbtractTestRunnerRailway):
 
     self.upload_and_empty_local(submission_id=submission_id, scenario_id=scenario_id)
 
-    return {'primary': time_per_step}
+    return {
+      'primary': time_per_step,
+      'punctuality': punctuality,
+      'success_rate': success_rate,
+    }
 
   @staticmethod
   def load_scenario_data(scenario_id: str):

@@ -36,9 +36,15 @@ class ScalabilityTestRunner(PowerGridTestRunner):
         obs = env.reset()
         reward, done, num_timesteps = 0.0, False, 0
 
+        # only agent.act() is timed, not env.step(); the first call is left out as one-off warm-up
+        agent_time = 0.0
         start = time.perf_counter()
         while not done:
-            obs, reward, done, _ = env.step(agent.act(obs, reward, done))
+            act_start = time.perf_counter()
+            action = agent.act(obs, reward, done)
+            if num_timesteps > 0:
+                agent_time += time.perf_counter() - act_start
+            obs, reward, done, _ = env.step(action)
             num_timesteps += 1
         total_time_seconds = time.perf_counter() - start
 
@@ -46,11 +52,11 @@ class ScalabilityTestRunner(PowerGridTestRunner):
         powerflow_time = getattr(env, "_time_powerflow", float("nan"))
 
         metrics = {
-            "avg_time_per_timestep": total_time_seconds / num_timesteps if num_timesteps else 0.0,
+            "avg_time_per_timestep": agent_time / max(num_timesteps - 1, 1),
             "total_time_seconds": total_time_seconds,
             "num_timesteps": float(num_timesteps),
             "powerflow_time": powerflow_time,
-            "agent_time": total_time_seconds - powerflow_time,
+            "agent_time": agent_time,
             "n_sub": float(env.n_sub),
             "n_line": float(env.n_line),
         }
