@@ -104,6 +104,9 @@ class TestRunner_KPI_AF_051_Railway(AbtractTestRunnerRailway):
     self.exec(["--data-dir", data_dir] + generate_policy_args, scenario_id, submission_id, subdir)
     total_time_seconds = self._last_simulation_time
     logger.info(f"total_time_seconds: {total_time_seconds}")
+    # Start-up and full run are separate executions; a full run no longer than start-up gives no valid time per step.
+    if total_time_seconds <= startup_seconds:
+      raise RuntimeError(f"full run ({total_time_seconds:.3f} s) not longer than start-up ({startup_seconds:.3f} s), timing is invalid")
 
     trajectory = Trajectory.load_existing(data_dir=Path(data_dir), ep_id=scenario_id)
     num_agents = trajectory.trains_rewards_dones_infos["agent_id"].max() + 1
