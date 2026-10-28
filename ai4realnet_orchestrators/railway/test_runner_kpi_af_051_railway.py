@@ -101,14 +101,19 @@ class TestRunner_KPI_AF_051_Railway(AbtractTestRunnerRailway):
     startup_seconds = min(startup_times)
     logger.info(f"startup_seconds: {startup_seconds}")
 
-    self.exec(["--data-dir", data_dir] + generate_policy_args, scenario_id, submission_id, subdir)
-    total_time_seconds = self._last_simulation_time
-    logger.info(f"total_time_seconds: {total_time_seconds}")
-    # Start-up and full run are separate executions; a full run no longer than start-up gives no valid time per step.
-    if total_time_seconds <= startup_seconds:
+    # Start-up and full run are separate executions, so on short scenarios noise can make the full run no longer than start-up; retry then.
+    # Each retry needs its own (empty) data dir, as flatland appends to an existing trajectory.
+    for k in range(STARTUP_REPEATS):
+      run_subdir = subdir if k == 0 else f"{subdir}/retry_{k}"
+      self.exec(["--data-dir", f"{DATA_VOLUME_MOUNTPATH}/{run_subdir}"] + generate_policy_args, scenario_id, submission_id, run_subdir)
+      total_time_seconds = self._last_simulation_time
+      logger.info(f"total_time_seconds: {total_time_seconds}")
+      if total_time_seconds > startup_seconds:
+        break
+    else:
       raise RuntimeError(f"full run ({total_time_seconds:.3f} s) not longer than start-up ({startup_seconds:.3f} s), timing is invalid")
 
-    trajectory = Trajectory.load_existing(data_dir=Path(data_dir), ep_id=scenario_id)
+    trajectory = Trajectory.load_existing(data_dir=Path(f"{DATA_VOLUME_MOUNTPATH}/{run_subdir}"), ep_id=scenario_id)
     num_agents = trajectory.trains_rewards_dones_infos["agent_id"].max() + 1
     num_timesteps = len(trajectory.trains_rewards_dones_infos) // num_agents
     logger.info(f"num_timesteps: {num_timesteps}, num_agents: {num_agents}")
