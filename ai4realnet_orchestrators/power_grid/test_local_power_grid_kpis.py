@@ -60,6 +60,10 @@ from ai4realnet_orchestrators.power_grid.robustness_resilience_test_runner impor
     RobustnessResilienceTestRunner,
     ROBUSTNESS_RESILIENCE_KPI_MAPPING
 )
+from ai4realnet_orchestrators.power_grid.test_runner_kpi_af_051_power_grid import (
+    ScalabilityTestRunner,
+    SCALABILITY_KPI_MAPPING
+)
 from ai4realnet_orchestrators.power_grid.test_runner_kpi_rs_058_power_grid import (
     TestRunner_KPI_RS_058_Power_Grid,
     ROBUSTNESS_TO_OPERATOR_KPI_MAPPING
@@ -126,6 +130,12 @@ xai_runner = XAIRobustnessFaithfulnessTestRunner(test_id="89919375-8b53-4e3f-838
 xai_runner.init(
     submission_data_url=CURRICULUM_SUBMISSION,
     submission_id="local_test_xai"
+scalability_runner = ScalabilityTestRunner(test_id="1409dbf6-0f66-4570-97df-fda84c46c71d",
+                                           scenario_ids=['547f8244-d091-40da-892d-ee24a26ee29f'],
+                                           benchmark_id="16706c82-75df-4969-932d-a7f5c941eca2")
+scalability_runner.init(
+    submission_data_url=CURRICULUM_SUBMISSION,
+    submission_id="local_test_scalability"
 )
 
 print(f"✅ Test runners initialized")
@@ -225,9 +235,28 @@ try:
             print(f"    Description: {info['description']}")
     else:
         print("  ⚠️ No robustness to operator input results found in cache.")
-
+        
     # ============================================================
-    # 5. EXPLAINABILITY ROBUSTNESS & FAITHFULNESS KPIs
+    # 5. SCALABILITY KPIs
+    # ============================================================
+    print("\n" + "=" * 60)
+    print("🔄 Running Scalability evaluation...")
+    print("=" * 60)
+    scalability_result = scalability_runner.run_scenario(
+        scenario_id="547f8244-d091-40da-892d-ee24a26ee29f",
+        submission_id="local_test_scalability"
+    )
+    print("\n📈 Scalability KPIs Results:")
+    if scalability_result:
+        for kpi_id, info in SCALABILITY_KPI_MAPPING.items():
+            val = scalability_result.get("primary", 0.0)
+            print(f"  - {info['name']}: {val:.4f}")
+            print(f"    Description: {info['description']}")
+    else:
+        print("  ⚠️ No scalability results found in cache.")
+  
+    # ============================================================
+    # 6. EXPLAINABILITY ROBUSTNESS & FAITHFULNESS KPIs
     # ============================================================
     print("\n" + "=" * 60)
     print("🔄 Running Explainability Robustness & Faithfulness evaluation...")
@@ -238,15 +267,15 @@ try:
     )
 
     print("\n📈 Explainability Robustness & Faithfulness KPIs Results:")
-    rob_op_inpt_cache = XAIRobustnessFaithfulnessTestRunner._metrics_cache.get("local_test_xai")
-    if rob_op_inpt_cache:
+    xai_inpt_cache = XAIRobustnessFaithfulnessTestRunner._metrics_cache.get("local_test_xai")
+    if xai_inpt_cache:
         for kpi_id, info in XAI_ROBUSTNESS_FAITHFULNESS_KPI_MAPPING.items():
-            val = rob_op_inpt_cache.get(info['metric_key'], 0.0)
+            val = xai_inpt_cache.get(info['metric_key'], 0.0)
             print(f"  - {info['name']}: {val:.4f}")
             print(f"    Description: {info['description']}")
     else:
         print("  ⚠️ No xai robustness results found in cache.")
-
+        
     print("\n" + "=" * 60)
     print("✅ ALL EVALUATIONS COMPLETE!")
     print("=" * 60)
