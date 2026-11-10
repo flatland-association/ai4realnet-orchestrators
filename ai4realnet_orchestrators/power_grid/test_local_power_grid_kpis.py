@@ -130,6 +130,7 @@ xai_runner = XAIRobustnessFaithfulnessTestRunner(test_id="89919375-8b53-4e3f-838
 xai_runner.init(
     submission_data_url=CURRICULUM_SUBMISSION,
     submission_id="local_test_xai"
+)
 scalability_runner = ScalabilityTestRunner(test_id="1409dbf6-0f66-4570-97df-fda84c46c71d",
                                            scenario_ids=['547f8244-d091-40da-892d-ee24a26ee29f'],
                                            benchmark_id="16706c82-75df-4969-932d-a7f5c941eca2")
